@@ -27,6 +27,31 @@ mongoose
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
+const User = require("./models/User");
+
+async function ensureAdmin() {
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+
+  const admin = await User.findOne({ email: adminEmail });
+
+  if (!admin) {
+    await User.create({
+      name: "Admin",
+      email: adminEmail,
+      password: adminPassword,
+      phone: "1234567890",
+      role: "admin",
+    });
+    console.log("🔥 Admin created on Render");
+  } else {
+    console.log("ℹ️ Admin already exists on Render");
+  }
+}
+
+ensureAdmin();
+
+
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/doctors", doctorRoutes);
