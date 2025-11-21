@@ -275,4 +275,264 @@ router.get("/all-doctors", async (req, res) => {
   }
 });
 
+// @route   GET /api/admin/analytics/operational
+// @desc    Get operational metrics
+// @access  Private/Admin
+router.get("/analytics/operational", async (req, res) => {
+  try {
+    console.log("📊 Fetching operational metrics...");
+
+    // 1. Appointments Trend (Last 30 Days)
+    const last30Days = new Date();
+    last30Days.setDate(last30Days.getDate() - 30);
+
+    const appointmentsTrend = await Appointment.aggregate([
+      { $match: { createdAt: { $gte: last30Days } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    // 2. No-Show Rate
+    const totalCompletedOrNoShow = await Appointment.countDocuments({
+      status: { $in: ["completed", "cancelled"] }, // Assuming cancelled might include no-shows or we need a specific status
+      // If we don't have explicit 'no-show', we might use cancelled as a proxy or just return 0 for now
+    });
+    // For now, let's calculate cancellation rate as a proxy for no-show if we don't have 'no-show' status
+    const totalCancelled = await Appointment.countDocuments({ status: "cancelled" });
+    const totalApps = await Appointment.countDocuments();
+    const noShowRate = totalApps > 0 ? ((totalCancelled / totalApps) * 100).toFixed(1) : 0;
+
+    // 3. Doctor Performance (Patients Seen)
+    const doctorPerformance = await Appointment.aggregate([
+      { $match: { status: "completed" } },
+      {
+        $group: {
+          _id: "$doctorId",
+          patientsSeen: { $sum: 1 },
+        },
+      },
+      {
+        $lookup: {
+          from: "doctors",
+          localField: "_id",
+          foreignField: "_id",
+          as: "doctor",
+        },
+      },
+      { $unwind: "$doctor" },
+      {
+        $project: {
+          name: "$doctor.name",
+          patientsSeen: 1,
+        },
+      },
+      { $sort: { patientsSeen: -1 } },
+      { $limit: 5 },
+    ]);
+
+    // 4. Department Load
+    const departmentLoad = await Appointment.aggregate([
+      {
+        $lookup: {
+          from: "doctors",
+          localField: "doctorId",
+          foreignField: "_id",
+          as: "doctor"
+        }
+      },
+      { $unwind: "$doctor" },
+      {
+        $group: {
+          _id: "$doctor.specialty",
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { count: -1 } }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        appointmentsTrend,
+        noShowRate,
+        doctorPerformance,
+        departmentLoad,
+      },
+    });
+  } catch (error) {
+    console.error("❌ Operational metrics error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+// @route   GET /api/admin/analytics/financial
+// @desc    Get financial metrics
+// @access  Private/Admin
+router.get("/analytics/financial", async (req, res) => {
+  try {
+    console.log("💰 Fetching financial metrics...");
+
+    // 1. Revenue Trend (Last 30 Days)
+    const last30Days = new Date();
+    last30Days.setDate(last30Days.getDate() - 30);
+
+    const revenueTrend = await Appointment.aggregate([
+      {
+        $match: {
+          paymentStatus: "paid",
+          createdAt: { $gte: last30Days },
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          revenue: { $sum: "$consultationFee" },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    // 2. Top Doctors by Revenue
+    const topDoctors = await Appointment.aggregate([
+      { $match: { paymentStatus: "paid" } },
+      {
+        $group: {
+          _id: "$doctorId",
+          revenue: { $sum: "$consultationFee" },
+        },
+      },
+      {
+        $lookup: {
+          from: "doctors",
+          localField: "_id",
+          foreignField: "_id",
+          as: "doctor",
+        },
+      },
+      { $unwind: "$doctor" },
+      {
+        $project: {
+          name: "$doctor.name",
+          revenue: 1,
+        },
+      },
+      { $sort: { revenue: -1 } },
+      { $limit: 5 },
+    ]);
+
+    // 3. Revenue by Service Type (Specialty)
+    const revenueBySpecialty = await Appointment.aggregate([
+      { $match: { paymentStatus: "paid" } },
+      {
+        $lookup: {
+          from: "doctors",
+          localField: "doctorId",
+          foreignField: "_id",
+          as: "doctor"
+        }
+      },
+      { $unwind: "$doctor" },
+      {
+        $group: {
+          _id: "$doctor.specialty",
+          revenue: { $sum: "$consultationFee" }
+        }
+      },
+      { $sort: { revenue: -1 } }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        revenueTrend,
+        topDoctors,
+        revenueBySpecialty,
+      },
+    });
+  } catch (error) {
+    console.error("❌ Financial metrics error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+// @route   GET /api/admin/patients
+// @desc    Get all patients with their appointment history
+// @access  Private/Admin
+router.get("/patients", async (req, res) => {
+  try {
+    console.log("👥 Fetching all patients...");
+
+    // 1. Find all users with role 'user'
+    const patients = await User.find({ role: "user" }).select("-password");
+
+    // 2. For each patient, get their appointment stats
+    const patientsWithStats = await Promise.all(
+      patients.map(async (patient) => {
+        const appointments = await Appointment.find({ userId: patient._id })
+          .populate("doctorId", "name specialty")
+          .sort({ date: -1 });
+
+        const totalAppointments = appointments.length;
+        const lastAppointment = appointments.length > 0 ? appointments[0].date : null;
+
+        // Get unique doctors visited
+        const uniqueDoctors = [
+          ...new Set(
+            appointments
+              .filter((apt) => apt.doctorId)
+              .map((apt) => apt.doctorId.name)
+          ),
+        ];
+
+        return {
+          _id: patient._id,
+          name: patient.name,
+          email: patient.email,
+          phone: patient.phone,
+          totalAppointments,
+          lastAppointment,
+          doctorsVisited: uniqueDoctors,
+        };
+      })
+    );
+
+    console.log(`✅ Fetched ${patientsWithStats.length} patients`);
+
+    res.json({
+      success: true,
+      data: patientsWithStats,
+    });
+  } catch (error) {
+    console.error("❌ Error fetching patients:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+// @route   DELETE /api/admin/users/:id
+// @desc    Delete user (Patient)
+// @access  Private/Admin
+router.delete("/users/:id", async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Also delete associated appointments? 
+    // For now, let's keep appointments but maybe nullify the userId or just leave them.
+    // Better to delete appointments to keep DB clean or keep them for records.
+    // Let's just delete the user for now as requested.
+
+    res.json({ success: true, message: "User deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
 module.exports = router;

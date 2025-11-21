@@ -13,6 +13,7 @@ import Footer from "./components/Footer";
 import Doctors from "./pages/Doctors";
 import BookAppointment from "./pages/BookAppointment";
 import MyAppointments from "./pages/MyAppointments";
+import DoctorDashboard from "./pages/DoctorDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -58,6 +59,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <MyAppointments />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/doctor-dashboard"
+              element={
+                <ProtectedRoute>
+                  <DoctorDashboard />
                 </ProtectedRoute>
               }
             />

@@ -24,8 +24,8 @@ export default function Navbar() {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
     setMenuOpen(false);
+    navigate('/', { replace: true });
   };
 
   const openLoginModal = () => {
@@ -38,9 +38,8 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ease-in-out ${
-          scrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-3'
-        }`}
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ease-in-out ${scrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-3'
+          }`}
       >
         <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
           {/* Logo & Brand */}
@@ -59,7 +58,7 @@ export default function Navbar() {
             <Link to="/doctors" className={navLink}>Doctors</Link>
             <a href="/#reviews" className={navLink}>Reviews</a>
             <a href="/#contact" className={navLink}>Contact</a>
-            
+
             {user ? (
               <>
                 {user.role === 'admin' ? (
@@ -68,6 +67,13 @@ export default function Navbar() {
                     className="bg-purple-500 hover:bg-purple-600 text-white font-semibold px-3 py-1.5 rounded-md text-sm transition-all duration-300 ease-in-out transform hover:scale-105"
                   >
                     Admin Dashboard
+                  </Link>
+                ) : user.role === 'doctor' ? (
+                  <Link
+                    to="/doctor-dashboard"
+                    className="bg-teal-500 hover:bg-teal-600 text-white font-semibold px-3 py-1.5 rounded-md text-sm transition-all duration-300 ease-in-out transform hover:scale-105"
+                  >
+                    Doctor Dashboard
                   </Link>
                 ) : (
                   <Link
@@ -92,7 +98,7 @@ export default function Navbar() {
                 <FaUser /> Login
               </button>
             )}
-            
+
             <a
               href="tel:+918950466995"
               className="bg-green-500 hover:bg-green-600 text-white font-semibold px-3 py-1.5 rounded-md flex items-center gap-2 transition-all duration-300 ease-in-out transform hover:scale-105 text-sm"
@@ -113,9 +119,8 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         <div
-          className={`md:hidden bg-white px-6 py-3 transition-all duration-500 ease-in-out transform ${
-            menuOpen ? 'max-h-screen opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-4'
-          }`}
+          className={`md:hidden bg-white px-6 py-3 transition-all duration-500 ease-in-out transform ${menuOpen ? 'max-h-screen opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-4'
+            }`}
         >
           <div className="flex flex-col space-y-3">
             <a onClick={toggleMenu} href="/#about" className={navLink}>About</a>
@@ -123,7 +128,7 @@ export default function Navbar() {
             <Link onClick={toggleMenu} to="/doctors" className={navLink}>Doctors</Link>
             <a onClick={toggleMenu} href="/#reviews" className={navLink}>Reviews</a>
             <a onClick={toggleMenu} href="/#contact" className={navLink}>Contact</a>
-            
+
             {user ? (
               <>
                 {user.role === 'admin' ? (
@@ -133,6 +138,14 @@ export default function Navbar() {
                     className="bg-purple-500 text-white px-3 py-1.5 rounded-md text-center text-sm"
                   >
                     Admin Dashboard
+                  </Link>
+                ) : user.role === 'doctor' ? (
+                  <Link
+                    onClick={toggleMenu}
+                    to="/doctor-dashboard"
+                    className="bg-teal-500 text-white px-3 py-1.5 rounded-md text-center text-sm"
+                  >
+                    Doctor Dashboard
                   </Link>
                 ) : (
                   <Link
@@ -158,7 +171,7 @@ export default function Navbar() {
                 Login / Sign Up
               </button>
             )}
-            
+
             <a
               href="tel:+918950466995"
               className="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold px-3 py-1.5 rounded-md text-center text-sm transition-all duration-300 ease-in-out transform hover:scale-105"

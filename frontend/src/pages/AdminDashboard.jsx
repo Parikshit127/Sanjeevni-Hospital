@@ -11,7 +11,11 @@ import {
   FaPlusCircle,
   FaEdit,
   FaTrash,
+  FaUserInjured,
 } from "react-icons/fa";
+import OperationalMetrics from "./OperationalMetrics";
+import FinancialMetrics from "./FinancialMetrics";
+import PatientsManagement from "./PatientsManagement";
 import {
   LineChart,
   Line,
@@ -117,34 +121,42 @@ function DashboardHome() {
     <div className="space-y-8">
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          icon={<FaUsers />}
-          title="Total Patients"
-          value={stats?.totalPatients || 0}
-          color="bg-blue-500"
-        />
-        <StatCard
-          icon={<FaUserMd />}
-          title="Total Doctors"
-          value={stats?.totalDoctors || 0}
-          color="bg-green-500"
-        />
-        <StatCard
-          icon={<FaCalendarCheck />}
-          title="Appointments"
-          value={stats?.totalAppointments || 0}
-          subtitle={`${stats?.todayAppointments || 0} today`}
-          color="bg-purple-500"
-        />
-        <StatCard
-          icon={<FaMoneyBillWave />}
-          title="Total Revenue"
-          value={`₹${(stats?.totalRevenue || 0).toLocaleString()}`}
-          subtitle={`₹${(
-            stats?.thisMonthRevenue || 0
-          ).toLocaleString()} this month`}
-          color="bg-yellow-500"
-        />
+        <Link to="/admin/patients">
+          <StatCard
+            icon={<FaUsers />}
+            title="Total Patients"
+            value={stats?.totalPatients || 0}
+            color="bg-blue-500"
+          />
+        </Link>
+        <Link to="/admin/doctors">
+          <StatCard
+            icon={<FaUserMd />}
+            title="Total Doctors"
+            value={stats?.totalDoctors || 0}
+            color="bg-green-500"
+          />
+        </Link>
+        <Link to="/admin/appointments">
+          <StatCard
+            icon={<FaCalendarCheck />}
+            title="Appointments"
+            value={stats?.totalAppointments || 0}
+            subtitle={`${stats?.todayAppointments || 0} today`}
+            color="bg-purple-500"
+          />
+        </Link>
+        <Link to="/admin/financial">
+          <StatCard
+            icon={<FaMoneyBillWave />}
+            title="Total Revenue"
+            value={`₹${(stats?.totalRevenue || 0).toLocaleString()}`}
+            subtitle={`₹${(
+              stats?.thisMonthRevenue || 0
+            ).toLocaleString()} this month`}
+            color="bg-yellow-500"
+          />
+        </Link>
       </div>
 
       {/* Charts */}
@@ -395,6 +407,7 @@ function DoctorsManagement() {
     phone: "",
     image: "",
     about: "",
+    password: "",
   });
 
   useEffect(() => {
@@ -425,12 +438,40 @@ function DoctorsManagement() {
     try {
       const config = createAxiosConfig();
       if (editingDoctor) {
+        // Construct a clean payload with only allowed fields
+        const updateData = {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          specialty: formData.specialty,
+          qualification: formData.qualification,
+          experience: formData.experience,
+          consultationFee: formData.consultationFee,
+          startTime: formData.startTime,
+          endTime: formData.endTime,
+          lunchStart: formData.lunchStart,
+          lunchEnd: formData.lunchEnd,
+          slotDuration: formData.slotDuration,
+          image: formData.image,
+          about: formData.about
+        };
+
+        // Only include password if it has a value
+        if (formData.password && formData.password.trim() !== "") {
+          updateData.password = formData.password;
+        }
+
+        console.log("Updating doctor with clean data:", updateData);
+        const url = `${API_URL}/doctors/${editingDoctor._id}`;
+        console.log("PUT URL:", url);
+
         await axios.put(
-          `${API_URL}/doctors/${editingDoctor._id}`,
-          formData,
+          url,
+          updateData,
           config
         );
       } else {
+        console.log("Creating doctor with data:", formData);
         await axios.post(`${API_URL}/doctors`, formData, config);
       }
       fetchDoctors();
@@ -438,9 +479,11 @@ function DoctorsManagement() {
       resetForm();
     } catch (error) {
       console.error("Error saving doctor:", error);
+      console.error("Error response:", error.response?.data);
+      console.error("Error status:", error.response?.status);
       alert(
         "Failed to save doctor: " +
-          (error.response?.data?.message || error.message)
+        (error.response?.data?.message || error.message)
       );
     }
   };
@@ -474,6 +517,7 @@ function DoctorsManagement() {
       phone: "",
       image: "",
       about: "",
+      password: "",
     });
     setEditingDoctor(null);
   };
@@ -654,6 +698,16 @@ function DoctorsManagement() {
                   required
                 />
                 <input
+                  type="password"
+                  placeholder={editingDoctor ? "New Password (leave blank to keep)" : "Password *"}
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
+                  className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#67c0b3]"
+                  required={!editingDoctor}
+                />
+                <input
                   type="tel"
                   placeholder="Phone *"
                   value={formData.phone}
@@ -721,6 +775,9 @@ export default function AdminDashboard() {
       icon: <FaCalendarCheck />,
     },
     { path: "/admin/doctors", label: "Doctors", icon: <FaUserMd /> },
+    { path: "/admin/patients", label: "Patients", icon: <FaUserInjured /> },
+    { path: "/admin/operational", label: "Operational Metrics", icon: <FaChartLine /> },
+    { path: "/admin/financial", label: "Financial Metrics", icon: <FaMoneyBillWave /> },
   ];
 
   return (
@@ -734,11 +791,10 @@ export default function AdminDashboard() {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition ${
-                  currentPath === item.path
-                    ? "bg-[#67c0b3] text-white"
-                    : "hover:bg-gray-700"
-                }`}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition ${currentPath === item.path
+                  ? "bg-[#67c0b3] text-white"
+                  : "hover:bg-gray-700"
+                  }`}
               >
                 {item.icon}
                 {item.label}
@@ -753,6 +809,9 @@ export default function AdminDashboard() {
             <Route path="/" element={<DashboardHome />} />
             <Route path="/appointments" element={<AppointmentsManagement />} />
             <Route path="/doctors" element={<DoctorsManagement />} />
+            <Route path="/patients" element={<PatientsManagement />} />
+            <Route path="/operational" element={<OperationalMetrics />} />
+            <Route path="/financial" element={<FinancialMetrics />} />
           </Routes>
         </div>
       </div>

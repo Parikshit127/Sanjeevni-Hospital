@@ -117,11 +117,10 @@ export default function MyAppointments() {
               <button
                 key={status}
                 onClick={() => setFilter(status)}
-                className={`px-6 py-2 rounded-full font-semibold transition ${
-                  filter === status
+                className={`px-6 py-2 rounded-full font-semibold transition ${filter === status
                     ? "bg-[#67c0b3] text-white shadow-lg"
                     : "bg-white text-gray-700 border border-gray-300 hover:border-[#67c0b3]"
-                }`}
+                  }`}
               >
                 {status.charAt(0).toUpperCase() + status.slice(1)}
               </button>
@@ -171,6 +170,11 @@ export default function MyAppointments() {
                             <FaClock className="text-green-500" />
                             {appointment.timeSlot}
                           </span>
+                          {appointment.tokenNumber && (
+                            <span className="flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs font-bold">
+                              Token #{appointment.tokenNumber}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
