@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FaUserMd, FaStar } from "react-icons/fa";
+import { FaUserMd, FaGraduationCap } from "react-icons/fa";
+import { AuthContext } from "../context/AuthContext";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
 export default function DoctorsSection() {
     const [doctors, setDoctors] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { user } = useContext(AuthContext);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchDoctors = async () => {
@@ -64,17 +67,24 @@ export default function DoctorsSection() {
                                     {doctor.specialty}
                                 </p>
                                 <div className="flex items-center mb-4">
-                                    <FaStar className="text-yellow-400 mr-1" />
+                                    <FaGraduationCap className="text-blue-500 mr-2" />
                                     <span className="text-gray-600 text-sm">
-                                        {doctor.rating || "New"} ({doctor.totalReviews || 0} reviews)
+                                        {doctor.qualification}
                                     </span>
                                 </div>
-                                <Link
-                                    to={`/doctors`}
+                                <button
+                                    onClick={() => {
+                                        if (user) {
+                                            navigate(`/book-appointment/${doctor._id}`);
+                                        } else {
+                                            // Redirect to login or show login modal
+                                            navigate('/');
+                                        }
+                                    }}
                                     className="block w-full text-center bg-gray-100 hover:bg-accent hover:text-white text-gray-700 font-semibold py-2 rounded-lg transition-colors duration-300"
                                 >
-                                    View Profile
-                                </Link>
+                                    Book Appointment
+                                </button>
                             </div>
                         </div>
                     ))}

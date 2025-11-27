@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import { FaBars, FaTimes, FaPhoneAlt, FaUser, FaSignOutAlt, FaCalendarAlt, FaUserMd, FaShieldAlt } from 'react-icons/fa';
 import { AuthContext } from '../context/AuthContext';
@@ -11,8 +11,25 @@ export default function Navbar() {
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
+
+  const scrollToSection = (sectionId) => {
+    // If we're not on the home page, navigate to home first
+    if (location.pathname !== '/') {
+      navigate('/');
+      // Small delay to let the page load before scrolling
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        element?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else {
+      // Already on home page, just scroll
+      const element = document.getElementById(sectionId);
+      element?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -65,26 +82,42 @@ export default function Navbar() {
 
           {/* Desktop Nav */}
           <div className="hidden lg:flex items-center space-x-8">
-            <a href="/#about" className={navLink}>
+            <button 
+              onClick={() => scrollToSection('about')}
+              className={navLink}
+            >
               About
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-teal-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
-            </a>
-            <a href="/#services" className={navLink}>
+            </button>
+            <button 
+              onClick={() => scrollToSection('services')}
+              className={navLink}
+            >
               Services
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-teal-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
-            </a>
-            <Link to="/doctors" className={navLink}>
+            </button>
+            <Link 
+              to="/doctors"
+              onClick={() => window.scrollTo(0, 0)}
+              className={navLink}
+            >
               Doctors
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-teal-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
             </Link>
-            <a href="/#reviews" className={navLink}>
+            <button 
+              onClick={() => scrollToSection('reviews')}
+              className={navLink}
+            >
               Reviews
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-teal-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
-            </a>
-            <a href="/#contact" className={navLink}>
+            </button>
+            <button 
+              onClick={() => scrollToSection('contact')}
+              className={navLink}
+            >
               Contact
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-teal-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
-            </a>
+            </button>
           </div>
 
           {/* Action Buttons */}
@@ -166,41 +199,52 @@ export default function Navbar() {
           <div className="max-w-7xl mx-auto px-6 py-6 space-y-4">
             {/* Mobile Navigation Links */}
             <div className="space-y-3 pb-4 border-b border-gray-100">
-              <a 
-                onClick={toggleMenu} 
-                href="/#about" 
-                className="block text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors"
+              <button 
+                onClick={() => {
+                  toggleMenu();
+                  scrollToSection('about');
+                }} 
+                className="block text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors w-full text-left"
               >
                 About
-              </a>
-              <a 
-                onClick={toggleMenu} 
-                href="/#services" 
-                className="block text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors"
+              </button>
+              <button 
+                onClick={() => {
+                  toggleMenu();
+                  scrollToSection('services');
+                }} 
+                className="block text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors w-full text-left"
               >
                 Services
-              </a>
+              </button>
               <Link 
-                onClick={toggleMenu} 
+                onClick={() => {
+                  toggleMenu();
+                  window.scrollTo(0, 0);
+                }} 
                 to="/doctors" 
                 className="block text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors"
               >
                 Doctors
               </Link>
-              <a 
-                onClick={toggleMenu} 
-                href="/#reviews" 
-                className="block text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors"
+              <button 
+                onClick={() => {
+                  toggleMenu();
+                  scrollToSection('reviews');
+                }} 
+                className="block text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors w-full text-left"
               >
                 Reviews
-              </a>
-              <a 
-                onClick={toggleMenu} 
-                href="/#contact" 
-                className="block text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors"
+              </button>
+              <button 
+                onClick={() => {
+                  toggleMenu();
+                  scrollToSection('contact');
+                }} 
+                className="block text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors w-full text-left"
               >
                 Contact
-              </a>
+              </button>
             </div>
 
             {/* Mobile Action Buttons */}

@@ -281,10 +281,10 @@ export default function Footer() {
             </div>
 
             <div className="flex gap-6 text-sm">
-              <button className="text-gray-400 hover:text-teal-400 transition-colors cursor-pointer">
+              <button onClick={() => {}} className="text-gray-400 hover:text-teal-400 transition-colors cursor-pointer">
                 Privacy Policy
               </button>
-              <button className="text-gray-400 hover:text-teal-400 transition-colors cursor-pointer">
+              <button onClick={() => {}} className="text-gray-400 hover:text-teal-400 transition-colors cursor-pointer">
                 Terms of Service
               </button>
             </div>

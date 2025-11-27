@@ -1,15 +1,10 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
-import Hero from "./components/Hero";
-import About from "./components/About";
-import Services from "./components/Services";
-import DoctorSection from "./components/DoctorSection";
-import Reviews from "./components/Reviews";
-import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 
 // New Pages
+import Home from "./pages/Home";
 import Doctors from "./pages/Doctors";
 import BookAppointment from "./pages/BookAppointment";
 import MyAppointments from "./pages/MyAppointments";
@@ -19,20 +14,6 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 // Context
 import { AuthProvider } from "./context/AuthContext";
-
-// Home Component (all landing page sections)
-function Home() {
-  return (
-    <>
-      <Hero />
-      <About />
-      <Services />
-      <DoctorSection />
-      <Reviews />
-      <Contact />
-    </>
-  );
-}
 
 export default function App() {
   return (

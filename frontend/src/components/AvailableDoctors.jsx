@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaUserMd, FaStar, FaCalendarAlt, FaStethoscope, FaAward, FaArrowRight } from 'react-icons/fa';
+import { AuthContext } from '../context/AuthContext';
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
 export default function AvailableDoctors() {
     const [doctors, setDoctors] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { user } = useContext(AuthContext);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchDoctors = async () => {
@@ -169,14 +172,28 @@ export default function AvailableDoctors() {
                                     )}
 
                                     {/* Book Button */}
-                                    <Link
-                                        to={`/book-appointment/${doctor._id}`}
-                                        className="group/btn flex items-center justify-center gap-2 w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
-                                    >
-                                        <FaCalendarAlt className="group-hover/btn:scale-110 transition-transform" />
-                                        <span>Book Appointment</span>
-                                        <FaArrowRight className="text-xs group-hover/btn:translate-x-1 transition-transform" />
-                                    </Link>
+                                    {user ? (
+                                        <button
+                                            onClick={() => {
+                                                window.scrollTo(0, 0);
+                                                navigate(`/book-appointment/${doctor._id}`);
+                                            }}
+                                            className="group/btn flex items-center justify-center gap-2 w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
+                                        >
+                                            <FaCalendarAlt className="group-hover/btn:scale-110 transition-transform" />
+                                            <span>Book Appointment</span>
+                                            <FaArrowRight className="text-xs group-hover/btn:translate-x-1 transition-transform" />
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={() => navigate('/')}
+                                            className="group/btn flex items-center justify-center gap-2 w-full bg-gray-400 hover:bg-gray-500 text-white font-semibold py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
+                                        >
+                                            <FaUserMd className="group-hover/btn:scale-110 transition-transform" />
+                                            <span>Login to Book</span>
+                                            <FaArrowRight className="text-xs group-hover/btn:translate-x-1 transition-transform" />
+                                        </button>
+                                    )}
                                 </div>
 
                                 {/* Decorative gradient line */}
@@ -194,13 +211,13 @@ export default function AvailableDoctors() {
                     transition={{ delay: 0.4 }}
                     className="text-center mt-16"
                 >
-                    <Link
-                        to="/doctors"
+                    <button
+                        onClick={() => navigate('/doctors')}
                         className="group inline-flex items-center gap-3 bg-white border-2 border-teal-600 text-teal-600 hover:bg-teal-600 hover:text-white font-semibold px-10 py-4 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                     >
                         <span>View All Doctors</span>
                         <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
-                    </Link>
+                    </button>
                 </motion.div>
 
                 {/* Trust Indicators */}
