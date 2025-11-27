@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Appointment = require("../models/Appointment");
 const Doctor = require("../models/Doctor");
+const User = require("../models/User");
 const { authMiddleware } = require("../middleware/auth");
 
 // @route   GET /api/appointments/available-slots
@@ -244,6 +245,65 @@ router.put("/:id/cancel", authMiddleware, async (req, res) => {
     res.json({
       success: true,
       message: "Appointment cancelled successfully",
+      appointment,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+// @route   PUT /api/appointments/:id/reschedule
+// @desc    Reschedule appointment to new date/time
+// @access  Private
+router.put("/:id/reschedule", authMiddleware, async (req, res) => {
+  try {
+    const { newDate, newTimeSlot } = req.body;
+
+    if (!newDate || !newTimeSlot) {
+      return res.status(400).json({ message: "New date and time slot are required" });
+    }
+
+    const appointment = await Appointment.findOne({
+      _id: req.params.id,
+      userId: req.user.id,
+    });
+
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
+    if (appointment.status === "cancelled" || appointment.status === "completed") {
+      return res
+        .status(400).json({
+          message: `Cannot reschedule ${appointment.status} appointment`
+        });
+    }
+
+    // Check if new slot is available
+    const existingSlot = await Appointment.findOne({
+      doctorId: appointment.doctorId,
+      date: new Date(newDate),
+      timeSlot: newTimeSlot,
+      status: { $ne: "cancelled" },
+      _id: { $ne: appointment._id }, // Exclude current appointment
+    });
+
+    if (existingSlot) {
+      return res
+        .status(400)
+        .json({ message: "This time slot is already booked" });
+    }
+
+    // Update appointment
+    appointment.date = new Date(newDate);
+    appointment.timeSlot = newTimeSlot;
+    await appointment.save();
+
+    await appointment.populate("doctorId", "name specialty consultationFee image");
+
+    res.json({
+      success: true,
+      message: "Appointment rescheduled successfully",
       appointment,
     });
   } catch (error) {

@@ -1,5 +1,6 @@
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
+import AvailableDoctors from '../components/AvailableDoctors';
 import Services from '../components/Services';
 import DoctorsSection from '../components/DoctorsSection';
 import ContactForm from '../components/ContactForm';
@@ -10,6 +11,7 @@ export default function Home() {
     <>
       <Navbar />
       <Hero />
+      <AvailableDoctors />
       <Services />
       <DoctorsSection />
       <ContactForm />

@@ -60,7 +60,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#67c0b3] to-[#2d3f4e] py-20 px-4 relative">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-accent to-primary py-20 px-4 relative">
       {/* Background Blur Effect */}
       <div className="absolute inset-0 backdrop-blur-sm bg-black/20"></div>
 
@@ -74,9 +74,8 @@ export default function Login() {
               setFormData({ name: "", email: "", password: "", phone: "" });
               setError("");
             }}
-            className={`flex-1 py-2 rounded-md font-semibold transition ${
-              isLogin ? "bg-[#67c0b3] text-white" : "text-gray-600"
-            }`}
+            className={`flex-1 py-2 rounded-md font-semibold transition ${isLogin ? "bg-accent text-white" : "text-gray-600"
+              }`}
           >
             Login
           </button>
@@ -86,16 +85,15 @@ export default function Login() {
               setFormData({ name: "", email: "", password: "", phone: "" });
               setError("");
             }}
-            className={`flex-1 py-2 rounded-md font-semibold transition ${
-              !isLogin ? "bg-[#67c0b3] text-white" : "text-gray-600"
-            }`}
+            className={`flex-1 py-2 rounded-md font-semibold transition ${!isLogin ? "bg-accent text-white" : "text-gray-600"
+              }`}
           >
             Sign Up
           </button>
         </div>
 
         {/* Title */}
-        <h2 className="text-3xl font-bold text-center text-[#2d3f4e] mb-2">
+        <h2 className="text-3xl font-bold text-center text-primary mb-2">
           {isLogin ? "Welcome Back!" : "Create Account"}
         </h2>
         <p className="text-center text-gray-600 mb-6">
@@ -121,7 +119,7 @@ export default function Login() {
                 placeholder="Full Name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#67c0b3] focus:outline-none transition"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:outline-none transition"
                 required={!isLogin}
               />
             </div>
@@ -135,7 +133,7 @@ export default function Login() {
               placeholder="Email Address"
               value={formData.email}
               onChange={handleChange}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#67c0b3] focus:outline-none transition"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:outline-none transition"
               required
             />
           </div>
@@ -149,7 +147,7 @@ export default function Login() {
                 placeholder="Phone Number"
                 value={formData.phone}
                 onChange={handleChange}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#67c0b3] focus:outline-none transition"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:outline-none transition"
                 required={!isLogin}
               />
             </div>
@@ -163,7 +161,7 @@ export default function Login() {
               placeholder="Password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#67c0b3] focus:outline-none transition"
+              className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:outline-none transition"
               required
               minLength={6}
             />
@@ -179,11 +177,10 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3 rounded-lg font-semibold text-white transition transform ${
-              loading
+            className={`w-full py-3 rounded-lg font-semibold text-white transition transform ${loading
                 ? "bg-gray-400 cursor-not-allowed"
-                : "bg-[#67c0b3] hover:bg-[#5ab0a3] hover:scale-105 shadow-lg"
-            }`}
+                : "bg-accent hover:bg-accent-600 hover:scale-105 shadow-lg"
+              }`}
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
@@ -208,7 +205,7 @@ export default function Login() {
                 setFormData({ name: "", email: "", password: "", phone: "" });
                 setError("");
               }}
-              className="text-[#67c0b3] font-semibold hover:underline"
+              className="text-accent font-semibold hover:underline"
             >
               {isLogin ? "Sign Up" : "Login"}
             </button>
@@ -219,7 +216,7 @@ export default function Login() {
         <div className="mt-4 text-center">
           <button
             onClick={() => navigate("/")}
-            className="text-gray-500 text-sm hover:text-[#67c0b3] transition"
+            className="text-gray-500 text-sm hover:text-accent transition"
           >
             ← Back to Home
           </button>

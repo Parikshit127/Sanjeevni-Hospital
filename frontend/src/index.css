@@ -1,6 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-neutral-cream text-primary-900;
+  }
+}
 /* Add these animation styles to your existing index.css */
 
 @keyframes scaleIn {

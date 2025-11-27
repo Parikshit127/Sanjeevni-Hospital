@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
-import { FaBars, FaTimes, FaPhoneAlt, FaUser, FaSignOutAlt } from 'react-icons/fa';
+import { FaBars, FaTimes, FaPhoneAlt, FaUser, FaSignOutAlt, FaCalendarAlt, FaUserMd, FaShieldAlt } from 'react-icons/fa';
 import { AuthContext } from '../context/AuthContext';
 import LoginModal from './LoginModal';
 
@@ -33,151 +33,234 @@ export default function Navbar() {
     setMenuOpen(false);
   };
 
-  const navLink = `text-[#2d3f4e] font-medium hover:text-[#67c0b3] transition duration-300 ease-in-out`;
+  const navLink = `text-gray-700 font-medium hover:text-teal-600 transition-all duration-300 relative group`;
 
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ease-in-out ${scrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-3'
-          }`}
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
+          scrolled 
+            ? 'bg-white/95 backdrop-blur-md shadow-lg py-3' 
+            : 'bg-white/80 backdrop-blur-sm py-4'
+        }`}
       >
-        <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           {/* Logo & Brand */}
-          <Link to="/" className="flex items-center space-x-2">
-            <img src={logo} alt="Sanjivani Logo" className="w-8 h-8 rounded-full transition-all duration-300 ease-in-out" />
+          <Link to="/" className="flex items-center space-x-3 group">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full opacity-0 group-hover:opacity-20 blur-md transition-opacity duration-300"></div>
+              <img 
+                src={logo} 
+                alt="Sanjivani Logo" 
+                className="w-10 h-10 rounded-full transition-transform duration-300 group-hover:scale-110 relative z-10" 
+              />
+            </div>
             <div>
-              <h1 className="text-base font-bold text-[#2d3f4e]">Sanjivani Hospital</h1>
-              <p className="text-xs text-gray-500">Orthopedic Excellence in Jhajjar</p>
+              <h1 className="text-lg font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                Sanjivani Hospital
+              </h1>
+              <p className="text-xs text-gray-500 font-medium">Orthopedic Excellence</p>
             </div>
           </Link>
 
           {/* Desktop Nav */}
-          <div className="space-x-6 hidden md:flex items-center">
-            <a href="/#about" className={navLink}>About</a>
-            <a href="/#services" className={navLink}>Services</a>
-            <Link to="/doctors" className={navLink}>Doctors</Link>
-            <a href="/#reviews" className={navLink}>Reviews</a>
-            <a href="/#contact" className={navLink}>Contact</a>
+          <div className="hidden lg:flex items-center space-x-8">
+            <a href="/#about" className={navLink}>
+              About
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-teal-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
+            </a>
+            <a href="/#services" className={navLink}>
+              Services
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-teal-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
+            </a>
+            <Link to="/doctors" className={navLink}>
+              Doctors
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-teal-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
+            </Link>
+            <a href="/#reviews" className={navLink}>
+              Reviews
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-teal-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
+            </a>
+            <a href="/#contact" className={navLink}>
+              Contact
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-teal-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
+            </a>
+          </div>
 
+          {/* Action Buttons */}
+          <div className="hidden lg:flex items-center space-x-3">
             {user ? (
               <>
                 {user.role === 'admin' ? (
                   <Link
                     to="/admin"
-                    className="bg-purple-500 hover:bg-purple-600 text-white font-semibold px-3 py-1.5 rounded-md text-sm transition-all duration-300 ease-in-out transform hover:scale-105"
+                    className="group flex items-center gap-2 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold px-4 py-2 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                   >
-                    Admin Dashboard
+                    <FaShieldAlt className="group-hover:rotate-12 transition-transform" />
+                    <span>Admin</span>
                   </Link>
                 ) : user.role === 'doctor' ? (
                   <Link
                     to="/doctor-dashboard"
-                    className="bg-teal-500 hover:bg-teal-600 text-white font-semibold px-3 py-1.5 rounded-md text-sm transition-all duration-300 ease-in-out transform hover:scale-105"
+                    className="group flex items-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-semibold px-4 py-2 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                   >
-                    Doctor Dashboard
+                    <FaUserMd className="group-hover:scale-110 transition-transform" />
+                    <span>Dashboard</span>
                   </Link>
                 ) : (
                   <Link
                     to="/my-appointments"
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-3 py-1.5 rounded-md text-sm transition-all duration-300 ease-in-out transform hover:scale-105"
+                    className="group flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold px-4 py-2 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                   >
-                    My Appointments
+                    <FaCalendarAlt className="group-hover:scale-110 transition-transform" />
+                    <span>My Appointments</span>
                   </Link>
                 )}
                 <button
                   onClick={handleLogout}
-                  className="bg-red-500 hover:bg-red-600 text-white font-semibold px-3 py-1.5 rounded-md flex items-center gap-2 text-sm transition-all duration-300 ease-in-out transform hover:scale-105"
+                  className="group flex items-center gap-2 bg-white border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white font-semibold px-4 py-2 rounded-lg text-sm transition-all duration-300 transform hover:scale-105"
                 >
-                  <FaSignOutAlt /> Logout
+                  <FaSignOutAlt className="group-hover:rotate-12 transition-transform" />
+                  <span>Logout</span>
                 </button>
               </>
             ) : (
               <button
                 onClick={openLoginModal}
-                className="bg-[#67c0b3] hover:bg-[#5ab0a3] text-white font-semibold px-4 py-1.5 rounded-md flex items-center gap-2 text-sm transition-all duration-300 ease-in-out transform hover:scale-105"
+                className="group flex items-center gap-2 bg-white border-2 border-teal-600 text-teal-600 hover:bg-teal-600 hover:text-white font-semibold px-4 py-2 rounded-lg text-sm transition-all duration-300 transform hover:scale-105"
               >
-                <FaUser /> Login
+                <FaUser className="group-hover:scale-110 transition-transform" />
+                <span>Login</span>
               </button>
             )}
 
             <a
               href="tel:+918950466995"
-              className="bg-green-500 hover:bg-green-600 text-white font-semibold px-3 py-1.5 rounded-md flex items-center gap-2 transition-all duration-300 ease-in-out transform hover:scale-105 text-sm"
+              className="group flex items-center gap-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold px-5 py-2 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg text-sm"
             >
-              <FaPhoneAlt className="text-xs" /> Call Us
+              <FaPhoneAlt className="text-xs animate-pulse group-hover:animate-none" />
+              <span>Call Us</span>
             </a>
           </div>
 
           {/* Mobile Toggle */}
           <button
             onClick={toggleMenu}
-            className="md:hidden text-[#2d3f4e] text-xl"
+            className="lg:hidden relative w-10 h-10 flex items-center justify-center rounded-lg bg-gradient-to-r from-teal-500 to-cyan-600 text-white hover:from-teal-600 hover:to-cyan-700 transition-all duration-300"
             aria-label="Toggle Menu"
           >
-            {menuOpen ? <FaTimes className="rotate-90 transition-transform duration-300 ease-in-out" /> : <FaBars className="rotate-0 transition-transform duration-300 ease-in-out" />}
+            {menuOpen ? (
+              <FaTimes className="text-xl transition-transform duration-300 rotate-90" />
+            ) : (
+              <FaBars className="text-xl transition-transform duration-300" />
+            )}
           </button>
         </div>
 
         {/* Mobile Menu */}
         <div
-          className={`md:hidden bg-white px-6 py-3 transition-all duration-500 ease-in-out transform ${menuOpen ? 'max-h-screen opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-4'
-            }`}
+          className={`lg:hidden bg-white border-t border-gray-100 transition-all duration-500 overflow-hidden ${
+            menuOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
+          }`}
         >
-          <div className="flex flex-col space-y-3">
-            <a onClick={toggleMenu} href="/#about" className={navLink}>About</a>
-            <a onClick={toggleMenu} href="/#services" className={navLink}>Services</a>
-            <Link onClick={toggleMenu} to="/doctors" className={navLink}>Doctors</Link>
-            <a onClick={toggleMenu} href="/#reviews" className={navLink}>Reviews</a>
-            <a onClick={toggleMenu} href="/#contact" className={navLink}>Contact</a>
-
-            {user ? (
-              <>
-                {user.role === 'admin' ? (
-                  <Link
-                    onClick={toggleMenu}
-                    to="/admin"
-                    className="bg-purple-500 text-white px-3 py-1.5 rounded-md text-center text-sm"
-                  >
-                    Admin Dashboard
-                  </Link>
-                ) : user.role === 'doctor' ? (
-                  <Link
-                    onClick={toggleMenu}
-                    to="/doctor-dashboard"
-                    className="bg-teal-500 text-white px-3 py-1.5 rounded-md text-center text-sm"
-                  >
-                    Doctor Dashboard
-                  </Link>
-                ) : (
-                  <Link
-                    onClick={toggleMenu}
-                    to="/my-appointments"
-                    className="bg-blue-500 text-white px-3 py-1.5 rounded-md text-center text-sm"
-                  >
-                    My Appointments
-                  </Link>
-                )}
-                <button
-                  onClick={handleLogout}
-                  className="bg-red-500 text-white px-3 py-1.5 rounded-md text-center text-sm"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={openLoginModal}
-                className="bg-[#67c0b3] text-white px-3 py-1.5 rounded-md text-center text-sm"
+          <div className="max-w-7xl mx-auto px-6 py-6 space-y-4">
+            {/* Mobile Navigation Links */}
+            <div className="space-y-3 pb-4 border-b border-gray-100">
+              <a 
+                onClick={toggleMenu} 
+                href="/#about" 
+                className="block text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors"
               >
-                Login / Sign Up
-              </button>
-            )}
+                About
+              </a>
+              <a 
+                onClick={toggleMenu} 
+                href="/#services" 
+                className="block text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors"
+              >
+                Services
+              </a>
+              <Link 
+                onClick={toggleMenu} 
+                to="/doctors" 
+                className="block text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors"
+              >
+                Doctors
+              </Link>
+              <a 
+                onClick={toggleMenu} 
+                href="/#reviews" 
+                className="block text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors"
+              >
+                Reviews
+              </a>
+              <a 
+                onClick={toggleMenu} 
+                href="/#contact" 
+                className="block text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors"
+              >
+                Contact
+              </a>
+            </div>
 
-            <a
-              href="tel:+918950466995"
-              className="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold px-3 py-1.5 rounded-md text-center text-sm transition-all duration-300 ease-in-out transform hover:scale-105"
-            >
-              📞 Call Us
-            </a>
+            {/* Mobile Action Buttons */}
+            <div className="space-y-3">
+              {user ? (
+                <>
+                  {user.role === 'admin' ? (
+                    <Link
+                      onClick={toggleMenu}
+                      to="/admin"
+                      className="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-3 rounded-lg text-sm font-semibold shadow-md"
+                    >
+                      <FaShieldAlt />
+                      <span>Admin Dashboard</span>
+                    </Link>
+                  ) : user.role === 'doctor' ? (
+                    <Link
+                      onClick={toggleMenu}
+                      to="/doctor-dashboard"
+                      className="flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-600 text-white px-4 py-3 rounded-lg text-sm font-semibold shadow-md"
+                    >
+                      <FaUserMd />
+                      <span>Doctor Dashboard</span>
+                    </Link>
+                  ) : (
+                    <Link
+                      onClick={toggleMenu}
+                      to="/my-appointments"
+                      className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-3 rounded-lg text-sm font-semibold shadow-md"
+                    >
+                      <FaCalendarAlt />
+                      <span>My Appointments</span>
+                    </Link>
+                  )}
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center justify-center gap-2 bg-white border-2 border-red-500 text-red-500 px-4 py-3 rounded-lg text-sm font-semibold"
+                  >
+                    <FaSignOutAlt />
+                    <span>Logout</span>
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={openLoginModal}
+                  className="w-full flex items-center justify-center gap-2 bg-white border-2 border-teal-600 text-teal-600 px-4 py-3 rounded-lg text-sm font-semibold"
+                >
+                  <FaUser />
+                  <span>Login / Sign Up</span>
+                </button>
+              )}
+
+              <a
+                href="tel:+918950466995"
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold px-4 py-3 rounded-lg text-sm shadow-lg"
+              >
+                <FaPhoneAlt className="animate-pulse" />
+                <span>Call Us Now</span>
+              </a>
+            </div>
           </div>
         </div>
       </nav>

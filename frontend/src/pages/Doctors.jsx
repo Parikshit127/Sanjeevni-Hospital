@@ -43,7 +43,7 @@ export default function Doctors() {
     return (
       <div className="min-h-screen flex items-center justify-center pt-20">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#67c0b3] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading doctors...</p>
         </div>
       </div>
@@ -55,7 +55,7 @@ export default function Doctors() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-[#2d3f4e] mb-4">
+          <h1 className="text-4xl font-bold text-primary mb-4">
             Our Expert Doctors
           </h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
@@ -70,11 +70,10 @@ export default function Doctors() {
             <button
               key={specialty}
               onClick={() => setFilter(specialty)}
-              className={`px-6 py-2 rounded-full font-semibold transition transform hover:scale-105 ${
-                filter === specialty
-                  ? "bg-[#67c0b3] text-white shadow-lg"
-                  : "bg-white text-gray-700 border border-gray-300 hover:border-[#67c0b3]"
-              }`}
+              className={`px-6 py-2 rounded-full font-semibold transition transform hover:scale-105 ${filter === specialty
+                  ? "bg-accent text-white shadow-lg"
+                  : "bg-white text-gray-700 border border-gray-300 hover:border-accent"
+                }`}
             >
               {specialty.charAt(0).toUpperCase() + specialty.slice(1)}
             </button>
@@ -89,7 +88,7 @@ export default function Doctors() {
               className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition duration-300 overflow-hidden group"
             >
               {/* Doctor Image */}
-              <div className="relative h-64 bg-gradient-to-br from-[#67c0b3] to-[#2d3f4e] overflow-hidden">
+              <div className="relative h-64 bg-gradient-to-br from-accent to-primary overflow-hidden">
                 <img
                   src={doctor.image}
                   alt={doctor.name}
@@ -105,10 +104,10 @@ export default function Doctors() {
 
               {/* Doctor Info */}
               <div className="p-6">
-                <h3 className="text-2xl font-bold text-[#2d3f4e] mb-2">
+                <h3 className="text-2xl font-bold text-primary mb-2">
                   {doctor.name}
                 </h3>
-                <p className="text-[#67c0b3] font-semibold mb-3 flex items-center gap-2">
+                <p className="text-accent font-semibold mb-3 flex items-center gap-2">
                   <FaUserMd /> {doctor.specialty}
                 </p>
 
@@ -131,7 +130,7 @@ export default function Doctors() {
                 {user ? (
                   <Link
                     to={`/book-appointment/${doctor._id}`}
-                    className="block w-full text-center bg-[#67c0b3] hover:bg-[#5ab0a3] text-white font-semibold py-3 rounded-lg transition transform hover:scale-105"
+                    className="block w-full text-center bg-accent hover:bg-accent-600 text-white font-semibold py-3 rounded-lg transition transform hover:scale-105"
                   >
                     Book Appointment
                   </Link>

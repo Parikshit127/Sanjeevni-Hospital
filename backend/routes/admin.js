@@ -535,4 +535,77 @@ router.delete("/users/:id", async (req, res) => {
   }
 });
 
+
+// @route   GET /api/admin/doctors/:id/appointments
+// @desc    Get all appointments for a specific doctor
+// @access  Private (Admin only)
+router.get('/doctors/:id/appointments', async (req, res) => {
+  try {
+    console.log('📋 Fetching appointments for doctor:', req.params.id);
+
+    const appointments = await Appointment.find({ doctorId: req.params.id })
+      .populate('userId', 'name email phone')
+      .sort({ date: -1, timeSlot: 1 });
+
+    console.log(`✅ Found ${appointments.length} appointments for doctor ${req.params.id}`);
+
+    res.json({ success: true, appointments });
+  } catch (error) {
+    console.error('❌ Error fetching doctor appointments:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// @route   PUT /api/admin/doctors/:id/schedule
+// @desc    Update doctor's schedule
+// @access  Private (Admin only)
+router.put('/doctors/:id/schedule', async (req, res) => {
+  try {
+    console.log('⏰ Updating schedule for doctor:', req.params.id);
+    const { startTime, endTime, lunchStart, lunchEnd, slotDuration } = req.body;
+
+    const doctor = await Doctor.findByIdAndUpdate(
+      req.params.id,
+      { startTime, endTime, lunchStart, lunchEnd, slotDuration },
+      { new: true }
+    );
+
+    if (!doctor) {
+      return res.status(404).json({ message: 'Doctor not found' });
+    }
+
+    console.log('✅ Schedule updated successfully');
+    res.json({ success: true, doctor });
+  } catch (error) {
+    console.error('❌ Error updating schedule:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// @route   PUT /api/admin/appointments/:id/status
+// @desc    Update appointment status
+// @access  Private (Admin only)
+router.put('/appointments/:id/status', async (req, res) => {
+  try {
+    console.log('🔄 Updating appointment status:', req.params.id);
+    const { status } = req.body;
+
+    const appointment = await Appointment.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    ).populate('doctorId', 'name specialty');
+
+    if (!appointment) {
+      return res.status(404).json({ message: 'Appointment not found' });
+    }
+
+    console.log('✅ Appointment status updated to:', status);
+    res.json({ success: true, appointment });
+  } catch (error) {
+    console.error('❌ Error updating appointment status:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 module.exports = router;

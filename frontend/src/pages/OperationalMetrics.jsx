@@ -47,7 +47,7 @@ export default function OperationalMetrics() {
     if (loading)
         return (
             <div className="flex justify-center items-center h-64">
-                <div className="w-12 h-12 border-4 border-[#67c0b3] border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
 
@@ -55,8 +55,8 @@ export default function OperationalMetrics() {
 
     return (
         <div className="space-y-8">
-            <h2 className="text-2xl font-bold text-[#2d3f4e] flex items-center gap-2">
-                <FaChartLine className="text-[#67c0b3]" /> Operational Metrics
+            <h2 className="text-2xl font-bold text-primary flex items-center gap-2">
+                <FaChartLine className="text-accent" /> Operational Metrics
             </h2>
 
             {/* Key Stats Cards */}
@@ -87,7 +87,7 @@ export default function OperationalMetrics() {
                                 <YAxis allowDecimals={false} />
                                 <Tooltip contentStyle={{ borderRadius: "8px", border: "none", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)" }} />
                                 <Legend />
-                                <Line type="monotone" dataKey="count" name="Appointments" stroke="#67c0b3" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                                <Line type="monotone" dataKey="count" name="Appointments" stroke="#5a8a5a" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
                             </LineChart>
                         </ResponsiveContainer>
                     </div>

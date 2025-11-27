@@ -135,11 +135,11 @@ export default function DoctorDashboard() {
                     <img
                         src={doctor.image || "https://via.placeholder.com/150"}
                         alt={doctor.name}
-                        className="w-32 h-32 rounded-full object-cover border-4 border-[#67c0b3]"
+                        className="w-32 h-32 rounded-full object-cover border-4 border-accent"
                     />
                     <div className="text-center md:text-left flex-1">
-                        <h1 className="text-3xl font-bold text-[#2d3f4e] mb-2">{doctor.name}</h1>
-                        <p className="text-[#67c0b3] font-semibold text-lg mb-1">{doctor.specialty}</p>
+                        <h1 className="text-3xl font-bold text-primary mb-2">{doctor.name}</h1>
+                        <p className="text-accent font-semibold text-lg mb-1">{doctor.specialty}</p>
                         <p className="text-gray-600 mb-2">{doctor.qualification}</p>
                         <div className="flex items-center justify-center md:justify-start gap-4 text-sm text-gray-500">
                             <span>Experience: {doctor.experience} Years</span>
@@ -157,8 +157,8 @@ export default function DoctorDashboard() {
                     {/* Left Column: Schedule Management */}
                     <div className="lg:col-span-1">
                         <div className="bg-white rounded-xl shadow-lg p-6 sticky top-24">
-                            <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-[#2d3f4e]">
-                                <FaClock className="text-[#67c0b3]" /> Manage Schedule
+                            <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-primary">
+                                <FaClock className="text-accent" /> Manage Schedule
                             </h2>
 
                             {message.text && (
@@ -170,22 +170,22 @@ export default function DoctorDashboard() {
                             <div className="space-y-4">
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-1">Start Time</label>
-                                    <input type="time" name="startTime" value={schedule.startTime} onChange={handleScheduleChange} className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#67c0b3] focus:outline-none" />
+                                    <input type="time" name="startTime" value={schedule.startTime} onChange={handleScheduleChange} className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:outline-none" />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-1">End Time</label>
-                                    <input type="time" name="endTime" value={schedule.endTime} onChange={handleScheduleChange} className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#67c0b3] focus:outline-none" />
+                                    <input type="time" name="endTime" value={schedule.endTime} onChange={handleScheduleChange} className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:outline-none" />
                                 </div>
                                 <div className="pt-2 border-t border-gray-200">
                                     <label className="block text-sm font-semibold text-gray-700 mb-1">Lunch Start</label>
-                                    <input type="time" name="lunchStart" value={schedule.lunchStart} onChange={handleScheduleChange} className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#67c0b3] focus:outline-none" />
+                                    <input type="time" name="lunchStart" value={schedule.lunchStart} onChange={handleScheduleChange} className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:outline-none" />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-1">Lunch End</label>
-                                    <input type="time" name="lunchEnd" value={schedule.lunchEnd} onChange={handleScheduleChange} className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#67c0b3] focus:outline-none" />
+                                    <input type="time" name="lunchEnd" value={schedule.lunchEnd} onChange={handleScheduleChange} className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:outline-none" />
                                 </div>
 
-                                <button onClick={saveSchedule} className="w-full bg-[#67c0b3] text-white py-3 rounded-lg font-semibold hover:bg-[#5ab0a3] flex items-center justify-center gap-2 transition shadow-md mt-4">
+                                <button onClick={saveSchedule} className="w-full bg-accent text-white py-3 rounded-lg font-semibold hover:bg-accent-600 flex items-center justify-center gap-2 transition shadow-md mt-4">
                                     <FaSave /> Update Schedule
                                 </button>
                             </div>
@@ -196,13 +196,13 @@ export default function DoctorDashboard() {
                     <div className="lg:col-span-2">
                         <div className="bg-white rounded-xl shadow-lg p-6">
                             <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-                                <h2 className="text-xl font-bold text-[#2d3f4e] flex items-center gap-2">
-                                    <FaCalendarAlt className="text-[#67c0b3]" /> Appointments
+                                <h2 className="text-xl font-bold text-primary flex items-center gap-2">
+                                    <FaCalendarAlt className="text-accent" /> Appointments
                                 </h2>
                                 <div className="flex bg-gray-100 rounded-lg p-1">
                                     <button
                                         onClick={() => setActiveTab("upcoming")}
-                                        className={`px-4 py-2 rounded-md text-sm font-medium transition ${activeTab === "upcoming" ? "bg-white text-[#67c0b3] shadow" : "text-gray-500 hover:text-gray-700"}`}
+                                        className={`px-4 py-2 rounded-md text-sm font-medium transition ${activeTab === "upcoming" ? "bg-white text-accent shadow" : "text-gray-500 hover:text-gray-700"}`}
                                     >
                                         Upcoming
                                     </button>
@@ -236,7 +236,7 @@ export default function DoctorDashboard() {
                                         {filteredAppointments.map((app) => (
                                             <tr key={app._id} className="border-b border-gray-100 hover:bg-gray-50 transition">
                                                 <td className="py-4 px-6">
-                                                    <span className="bg-[#67c0b3] text-white px-3 py-1 rounded-full font-bold text-xs">
+                                                    <span className="bg-accent text-white px-3 py-1 rounded-full font-bold text-xs">
                                                         #{app.tokenNumber}
                                                     </span>
                                                 </td>
@@ -246,7 +246,7 @@ export default function DoctorDashboard() {
                                                 </td>
                                                 <td className="py-4 px-6">
                                                     <div className="font-medium">{new Date(app.date).toLocaleDateString()}</div>
-                                                    <div className="text-[#67c0b3] font-semibold">{app.timeSlot}</div>
+                                                    <div className="text-accent font-semibold">{app.timeSlot}</div>
                                                 </td>
                                                 <td className="py-4 px-6">
                                                     <button

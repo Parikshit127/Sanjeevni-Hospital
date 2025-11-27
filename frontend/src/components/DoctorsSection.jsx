@@ -31,7 +31,7 @@ export default function DoctorsSection() {
         <section className="py-20 bg-gray-50">
             <div className="max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
-                    <h2 className="text-3xl md:text-4xl font-bold text-[#2d3f4e] mb-4">
+                    <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
                         Meet Our Specialists
                     </h2>
                     <p className="text-gray-600 max-w-2xl mx-auto">
@@ -57,10 +57,10 @@ export default function DoctorsSection() {
                                 )}
                             </div>
                             <div className="p-6">
-                                <h3 className="text-xl font-bold text-[#2d3f4e] mb-1">
+                                <h3 className="text-xl font-bold text-primary mb-1">
                                     {doctor.name}
                                 </h3>
-                                <p className="text-[#67c0b3] font-semibold text-sm mb-2">
+                                <p className="text-accent font-semibold text-sm mb-2">
                                     {doctor.specialty}
                                 </p>
                                 <div className="flex items-center mb-4">
@@ -71,7 +71,7 @@ export default function DoctorsSection() {
                                 </div>
                                 <Link
                                     to={`/doctors`}
-                                    className="block w-full text-center bg-gray-100 hover:bg-[#67c0b3] hover:text-white text-gray-700 font-semibold py-2 rounded-lg transition-colors duration-300"
+                                    className="block w-full text-center bg-gray-100 hover:bg-accent hover:text-white text-gray-700 font-semibold py-2 rounded-lg transition-colors duration-300"
                                 >
                                     View Profile
                                 </Link>
@@ -83,7 +83,7 @@ export default function DoctorsSection() {
                 <div className="text-center mt-12">
                     <Link
                         to="/doctors"
-                        className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-[#67c0b3] hover:bg-[#5ab0a3] md:text-lg transition-transform transform hover:scale-105 shadow-lg"
+                        className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-accent hover:bg-accent-600 md:text-lg transition-transform transform hover:scale-105 shadow-lg"
                     >
                         View All Doctors
                     </Link>

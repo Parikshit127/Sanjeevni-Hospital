@@ -16,6 +16,7 @@ import {
 import OperationalMetrics from "./OperationalMetrics";
 import FinancialMetrics from "./FinancialMetrics";
 import PatientsManagement from "./PatientsManagement";
+import DoctorManagement from "../components/DoctorManagement";
 import {
   LineChart,
   Line,
@@ -95,7 +96,7 @@ function DashboardHome() {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#67c0b3] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading dashboard...</p>
         </div>
       </div>
@@ -126,7 +127,7 @@ function DashboardHome() {
             icon={<FaUsers />}
             title="Total Patients"
             value={stats?.totalPatients || 0}
-            color="bg-blue-500"
+            color="bg-primary-600"
           />
         </Link>
         <Link to="/admin/doctors">
@@ -134,7 +135,7 @@ function DashboardHome() {
             icon={<FaUserMd />}
             title="Total Doctors"
             value={stats?.totalDoctors || 0}
-            color="bg-green-500"
+            color="bg-accent-600"
           />
         </Link>
         <Link to="/admin/appointments">
@@ -143,7 +144,7 @@ function DashboardHome() {
             title="Appointments"
             value={stats?.totalAppointments || 0}
             subtitle={`${stats?.todayAppointments || 0} today`}
-            color="bg-purple-500"
+            color="bg-primary-500"
           />
         </Link>
         <Link to="/admin/financial">
@@ -154,7 +155,7 @@ function DashboardHome() {
             subtitle={`₹${(
               stats?.thisMonthRevenue || 0
             ).toLocaleString()} this month`}
-            color="bg-yellow-500"
+            color="bg-accent-500"
           />
         </Link>
       </div>
@@ -164,7 +165,7 @@ function DashboardHome() {
         {/* Appointments Chart */}
         <div className="bg-white rounded-xl shadow-lg p-6">
           <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <FaChartLine className="text-[#67c0b3]" />
+            <FaChartLine className="text-accent" />
             Appointments (Last 7 Days)
           </h3>
           {appointmentsData.length > 0 ? (
@@ -178,7 +179,7 @@ function DashboardHome() {
                 <Line
                   type="monotone"
                   dataKey="count"
-                  stroke="#67c0b3"
+                  stroke="#5a8a5a"
                   strokeWidth={3}
                 />
               </LineChart>
@@ -193,7 +194,7 @@ function DashboardHome() {
         {/* Revenue Chart */}
         <div className="bg-white rounded-xl shadow-lg p-6">
           <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <FaMoneyBillWave className="text-green-500" />
+            <FaMoneyBillWave className="text-accent" />
             Revenue (Last 6 Months)
           </h3>
           {revenueData.length > 0 ? (
@@ -204,7 +205,7 @@ function DashboardHome() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="revenue" fill="#10b981" />
+                <Bar dataKey="revenue" fill="#5a8a5a" />
               </BarChart>
             </ResponsiveContainer>
           ) : (
@@ -284,7 +285,7 @@ function AppointmentsManagement() {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-[#67c0b3] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading appointments...</p>
         </div>
       </div>
@@ -323,7 +324,7 @@ function AppointmentsManagement() {
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-[#67c0b3] text-white">
+            <thead className="bg-primary text-white">
               <tr>
                 <th className="px-6 py-3 text-left">Patient</th>
                 <th className="px-6 py-3 text-left">Doctor</th>
@@ -360,7 +361,7 @@ function AppointmentsManagement() {
                       onChange={(e) =>
                         updateStatus(apt._id, e.target.value, apt.paymentStatus)
                       }
-                      className="px-3 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#67c0b3]"
+                      className="px-3 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                     >
                       <option value="pending">Pending</option>
                       <option value="confirmed">Confirmed</option>
@@ -374,7 +375,7 @@ function AppointmentsManagement() {
                       onChange={(e) =>
                         updateStatus(apt._id, apt.status, e.target.value)
                       }
-                      className="px-3 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#67c0b3]"
+                      className="px-3 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                     >
                       <option value="pending">Pending</option>
                       <option value="paid">Paid</option>
@@ -395,6 +396,7 @@ function DoctorsManagement() {
   const [doctors, setDoctors] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editingDoctor, setEditingDoctor] = useState(null);
+  const [managingDoctor, setManagingDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
@@ -526,7 +528,7 @@ function DoctorsManagement() {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-[#67c0b3] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading doctors...</p>
         </div>
       </div>
@@ -559,7 +561,7 @@ function DoctorsManagement() {
             resetForm();
             setShowModal(true);
           }}
-          className="bg-[#67c0b3] hover:bg-[#5ab0a3] text-white font-semibold px-6 py-3 rounded-lg flex items-center gap-2 transition"
+          className="bg-accent hover:bg-accent-600 text-white font-semibold px-6 py-3 rounded-lg flex items-center gap-2 transition"
         >
           <FaPlusCircle /> Add New Doctor
         </button>
@@ -596,28 +598,36 @@ function DoctorsManagement() {
                 <h3 className="text-xl font-bold text-gray-800 mb-2">
                   {doctor.name}
                 </h3>
-                <p className="text-[#67c0b3] font-semibold mb-2">
+                <p className="text-accent font-semibold mb-2">
                   {doctor.specialty}
                 </p>
                 <p className="text-gray-600 text-sm mb-3">
                   {doctor.qualification}
                 </p>
-                <p className="text-lg font-semibold text-green-600 mb-4">
+                <p className="text-lg font-semibold text-accent-700 mb-4">
                   ₹{doctor.consultationFee}
                 </p>
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2">
                   <button
-                    onClick={() => handleEdit(doctor)}
-                    className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg flex items-center justify-center gap-2 transition"
+                    onClick={() => setManagingDoctor(doctor._id)}
+                    className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg flex items-center justify-center gap-2 transition"
                   >
-                    <FaEdit /> Edit
+                    <FaUserMd /> Manage
                   </button>
-                  <button
-                    onClick={() => handleDelete(doctor._id)}
-                    className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg flex items-center justify-center gap-2 transition"
-                  >
-                    <FaTrash /> Delete
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleEdit(doctor)}
+                      className="flex-1 bg-primary-600 hover:bg-primary-700 text-white py-2 rounded-lg flex items-center justify-center gap-2 transition"
+                    >
+                      <FaEdit /> Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(doctor._id)}
+                      className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg flex items-center justify-center gap-2 transition"
+                    >
+                      <FaTrash /> Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -641,7 +651,7 @@ function DoctorsManagement() {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#67c0b3]"
+                  className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                   required
                 />
                 <input
@@ -651,7 +661,7 @@ function DoctorsManagement() {
                   onChange={(e) =>
                     setFormData({ ...formData, specialty: e.target.value })
                   }
-                  className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#67c0b3]"
+                  className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                   required
                 />
                 <input
@@ -661,7 +671,7 @@ function DoctorsManagement() {
                   onChange={(e) =>
                     setFormData({ ...formData, qualification: e.target.value })
                   }
-                  className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#67c0b3]"
+                  className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                   required
                 />
                 <input
@@ -671,7 +681,7 @@ function DoctorsManagement() {
                   onChange={(e) =>
                     setFormData({ ...formData, experience: e.target.value })
                   }
-                  className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#67c0b3]"
+                  className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                   required
                 />
                 <input
@@ -684,7 +694,7 @@ function DoctorsManagement() {
                       consultationFee: e.target.value,
                     })
                   }
-                  className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#67c0b3]"
+                  className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                   required
                 />
                 <input
@@ -694,7 +704,7 @@ function DoctorsManagement() {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#67c0b3]"
+                  className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                   required
                 />
                 <input
@@ -704,7 +714,7 @@ function DoctorsManagement() {
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
                   }
-                  className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#67c0b3]"
+                  className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                   required={!editingDoctor}
                 />
                 <input
@@ -714,7 +724,7 @@ function DoctorsManagement() {
                   onChange={(e) =>
                     setFormData({ ...formData, phone: e.target.value })
                   }
-                  className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#67c0b3]"
+                  className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                   required
                 />
                 <input
@@ -724,7 +734,7 @@ function DoctorsManagement() {
                   onChange={(e) =>
                     setFormData({ ...formData, image: e.target.value })
                   }
-                  className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#67c0b3]"
+                  className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                 />
               </div>
               <textarea
@@ -733,13 +743,13 @@ function DoctorsManagement() {
                 onChange={(e) =>
                   setFormData({ ...formData, about: e.target.value })
                 }
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#67c0b3]"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                 rows="3"
               ></textarea>
               <div className="flex gap-4">
                 <button
                   type="submit"
-                  className="flex-1 bg-[#67c0b3] hover:bg-[#5ab0a3] text-white py-3 rounded-lg font-semibold transition"
+                  className="flex-1 bg-accent hover:bg-accent-600 text-white py-3 rounded-lg font-semibold transition"
                 >
                   {editingDoctor ? "Update" : "Add"} Doctor
                 </button>
@@ -757,6 +767,14 @@ function DoctorsManagement() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Doctor Management Modal */}
+      {managingDoctor && (
+        <DoctorManagement
+          doctorId={managingDoctor}
+          onClose={() => setManagingDoctor(null)}
+        />
       )}
     </div>
   );
@@ -784,7 +802,7 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-gray-100 pt-20">
       <div className="flex">
         {/* Sidebar */}
-        <div className="w-64 bg-[#2d3f4e] text-white min-h-screen p-6 fixed left-0 top-20">
+        <div className="w-64 bg-primary-900 text-white min-h-screen p-6 fixed left-0 top-20">
           <h2 className="text-2xl font-bold mb-8">Admin Panel</h2>
           <nav className="space-y-2">
             {navItems.map((item) => (
@@ -792,7 +810,7 @@ export default function AdminDashboard() {
                 key={item.path}
                 to={item.path}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition ${currentPath === item.path
-                  ? "bg-[#67c0b3] text-white"
+                  ? "bg-accent text-white"
                   : "hover:bg-gray-700"
                   }`}
               >

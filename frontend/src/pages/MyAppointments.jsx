@@ -16,13 +16,24 @@ export default function MyAppointments() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
 
+  // Reschedule modal state
+  const [rescheduleModal, setRescheduleModal] = useState({ open: false, appointment: null });
+  const [newDate, setNewDate] = useState("");
+  const [newTimeSlot, setNewTimeSlot] = useState("");
+  const [availableSlots, setAvailableSlots] = useState([]);
+  const [bookedSlots, setBookedSlots] = useState([]);
+  const [rescheduling, setRescheduling] = useState(false);
+
   useEffect(() => {
     fetchAppointments();
   }, []);
 
   const fetchAppointments = async () => {
     try {
-      const res = await axios.get(`${API_URL}/appointments/my-appointments`);
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`${API_URL}/appointments/my-appointments`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const apps = res.data.appointments || [];
 
       // Filter out mock/placeholder appointments before showing to the user.
@@ -50,11 +61,71 @@ export default function MyAppointments() {
     }
 
     try {
-      await axios.put(`${API_URL}/appointments/${appointmentId}/cancel`);
+      const token = localStorage.getItem("token");
+      await axios.put(
+        `${API_URL}/appointments/${appointmentId}/cancel`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       fetchAppointments();
       alert("Appointment cancelled successfully");
     } catch (error) {
+      console.error("Cancel error:", error);
       alert("Failed to cancel appointment");
+    }
+  };
+
+  const openRescheduleModal = (appointment) => {
+    setRescheduleModal({ open: true, appointment });
+    setNewDate("");
+    setNewTimeSlot("");
+    setAvailableSlots([]);
+  };
+
+  const closeRescheduleModal = () => {
+    setRescheduleModal({ open: false, appointment: null });
+  };
+
+  const fetchSlotsForDate = async (date) => {
+    if (!date || !rescheduleModal.appointment) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`${API_URL}/appointments/available-slots`, {
+        params: { doctorId: rescheduleModal.appointment.doctorId._id, date },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setAvailableSlots(res.data.allSlots || []);
+      setBookedSlots(res.data.bookedSlots || []);
+    } catch (error) {
+      console.error("Error fetching slots:", error);
+    }
+  };
+
+  const handleReschedule = async () => {
+    if (!newDate || !newTimeSlot) {
+      alert("Please select both date and time slot");
+      return;
+    }
+
+    setRescheduling(true);
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(
+        `${API_URL}/appointments/${rescheduleModal.appointment._id}/reschedule`,
+        { newDate, newTimeSlot },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert("Appointment rescheduled successfully!");
+      fetchAppointments();
+      closeRescheduleModal();
+    } catch (error) {
+      console.error("Reschedule error:", error);
+      console.error("Error response:", error.response?.data);
+      console.error("Error status:", error.response?.status);
+      const errorMsg = error.response?.data?.message || error.message || "Failed to reschedule appointment";
+      alert(errorMsg);
+    } finally {
+      setRescheduling(false);
     }
   };
 
@@ -92,7 +163,7 @@ export default function MyAppointments() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center pt-20">
-        <div className="w-16 h-16 border-4 border-[#67c0b3] border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -102,7 +173,7 @@ export default function MyAppointments() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-[#2d3f4e] mb-2">
+          <h1 className="text-4xl font-bold text-primary mb-2">
             My Appointments
           </h1>
           <p className="text-gray-600">
@@ -118,8 +189,8 @@ export default function MyAppointments() {
                 key={status}
                 onClick={() => setFilter(status)}
                 className={`px-6 py-2 rounded-full font-semibold transition ${filter === status
-                    ? "bg-[#67c0b3] text-white shadow-lg"
-                    : "bg-white text-gray-700 border border-gray-300 hover:border-[#67c0b3]"
+                  ? "bg-accent text-white shadow-lg"
+                  : "bg-white text-gray-700 border border-gray-300 hover:border-accent"
                   }`}
               >
                 {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -143,11 +214,11 @@ export default function MyAppointments() {
                       <img
                         src={appointment.doctorId.image}
                         alt={appointment.doctorId.name}
-                        className="w-20 h-20 rounded-full object-cover border-4 border-[#67c0b3]"
+                        className="w-20 h-20 rounded-full object-cover border-4 border-accent"
                       />
                       <div>
-                        <h3 className="text-xl font-bold text-[#2d3f4e] mb-1 flex items-center gap-2">
-                          <FaUserMd className="text-[#67c0b3]" />
+                        <h3 className="text-xl font-bold text-primary mb-1 flex items-center gap-2">
+                          <FaUserMd className="text-accent" />
                           {appointment.doctorId.name}
                         </h3>
                         <p className="text-gray-600 text-sm mb-2">
@@ -200,13 +271,21 @@ export default function MyAppointments() {
                         </p>
                       </div>
 
-                      {appointment.status === "pending" && (
-                        <button
-                          onClick={() => handleCancel(appointment._id)}
-                          className="bg-red-500 hover:bg-red-600 text-white font-semibold px-6 py-2 rounded-lg transition"
-                        >
-                          Cancel Appointment
-                        </button>
+                      {(appointment.status === "pending" || appointment.status === "confirmed") && (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => openRescheduleModal(appointment)}
+                            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg transition text-sm"
+                          >
+                            Reschedule
+                          </button>
+                          <button
+                            onClick={() => handleCancel(appointment._id)}
+                            className="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-lg transition text-sm"
+                          >
+                            Cancel
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -237,10 +316,88 @@ export default function MyAppointments() {
             </p>
             <a
               href="/doctors"
-              className="inline-block bg-[#67c0b3] hover:bg-[#5ab0a3] text-white font-semibold px-8 py-3 rounded-lg transition"
+              className="inline-block bg-accent hover:bg-accent-600 text-white font-semibold px-8 py-3 rounded-lg transition"
             >
               Book Your First Appointment
             </a>
+          </div>
+        )}
+
+        {/* Reschedule Modal */}
+        {rescheduleModal.open && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/50">
+            <div className="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full">
+              <h3 className="text-2xl font-bold text-primary mb-4">Reschedule Appointment</h3>
+              <p className="text-gray-600 mb-6">
+                Dr. {rescheduleModal.appointment.doctorId.name} - {rescheduleModal.appointment.doctorId.specialty}
+              </p>
+
+              {/* Date Picker */}
+              <label className="block text-gray-700 font-semibold mb-2">Select New Date</label>
+              <input
+                type="date"
+                min={new Date().toISOString().split("T")[0]}
+                value={newDate}
+                onChange={(e) => {
+                  setNewDate(e.target.value);
+                  setNewTimeSlot("");
+                  fetchSlotsForDate(e.target.value);
+                }}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-accent focus:outline-none"
+              />
+
+              {/* Time Slot Selection */}
+              {newDate && availableSlots.length > 0 && (
+                <div>
+                  <label className="block text-gray-700 font-semibold mb-2">Select Time Slot</label>
+                  <div className="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto mb-4">
+                    {availableSlots.map((slot) => {
+                      const isBooked = bookedSlots.includes(slot);
+                      return (
+                        <button
+                          key={slot}
+                          type="button"
+                          onClick={() => !isBooked && setNewTimeSlot(slot)}
+                          disabled={isBooked}
+                          className={`py-2 px-3 rounded-lg font-medium text-sm transition ${isBooked
+                            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                            : newTimeSlot === slot
+                              ? "bg-accent text-white"
+                              : "bg-white border-2 border-gray-300 hover:border-accent"
+                            }`}
+                        >
+                          {slot}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {newDate && availableSlots.length === 0 && (
+                <p className="text-red-500 text-sm mb-4">No available slots for this date.</p>
+              )}
+
+              {/* Actions */}
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={closeRescheduleModal}
+                  className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-semibold py-3 rounded-lg transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleReschedule}
+                  disabled={!newTimeSlot || rescheduling}
+                  className={`flex-1 font-semibold py-3 rounded-lg transition ${!newTimeSlot || rescheduling
+                    ? "bg-gray-400 cursor-not-allowed text-white"
+                    : "bg-accent hover:bg-accent-600 text-white"
+                    }`}
+                >
+                  {rescheduling ? "Rescheduling..." : "Confirm"}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

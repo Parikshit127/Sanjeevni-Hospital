@@ -60,7 +60,7 @@ export default function PatientsManagement() {
     if (loading)
         return (
             <div className="flex justify-center items-center h-64">
-                <div className="w-12 h-12 border-4 border-[#67c0b3] border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
 
@@ -69,8 +69,8 @@ export default function PatientsManagement() {
     return (
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                <h2 className="text-2xl font-bold text-[#2d3f4e] flex items-center gap-2">
-                    <FaUserInjured className="text-[#67c0b3]" /> Patients Management
+                <h2 className="text-2xl font-bold text-primary flex items-center gap-2">
+                    <FaUserInjured className="text-accent" /> Patients Management
                 </h2>
                 <div className="relative w-full md:w-64">
                     <input
@@ -78,7 +78,7 @@ export default function PatientsManagement() {
                         placeholder="Search patients..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#67c0b3]"
+                        className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                     />
                     <FaSearch className="absolute left-3 top-3 text-gray-400" />
                 </div>
@@ -103,7 +103,7 @@ export default function PatientsManagement() {
             <div className="bg-white rounded-xl shadow-lg overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full">
-                        <thead className="bg-[#67c0b3] text-white">
+                        <thead className="bg-primary text-white">
                             <tr>
                                 <th className="px-6 py-3 text-left">Patient Name</th>
                                 <th className="px-6 py-3 text-left">Contact Info</th>

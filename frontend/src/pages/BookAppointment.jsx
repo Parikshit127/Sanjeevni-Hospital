@@ -117,7 +117,7 @@ export default function BookAppointment() {
   if (!doctor) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-16 h-16 border-4 border-[#67c0b3] border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -131,17 +131,17 @@ export default function BookAppointment() {
             <img
               src={doctor.image}
               alt={doctor.name}
-              className="w-32 h-32 rounded-full object-cover border-4 border-[#67c0b3]"
+              className="w-32 h-32 rounded-full object-cover border-4 border-accent"
             />
             <div>
-              <h2 className="text-3xl font-bold text-[#2d3f4e] mb-2">
+              <h2 className="text-3xl font-bold text-primary mb-2">
                 {doctor.name}
               </h2>
-              <p className="text-[#67c0b3] font-semibold mb-2">
+              <p className="text-accent font-semibold mb-2">
                 {doctor.specialty}
               </p>
               <p className="text-gray-600">{doctor.qualification}</p>
-              <p className="text-lg font-semibold text-green-600 mt-2">
+              <p className="text-lg font-semibold text-accent-700 mt-2">
                 Consultation Fee: ₹{doctor.consultationFee}
               </p>
             </div>
@@ -150,18 +150,17 @@ export default function BookAppointment() {
 
         {/* Booking Form */}
         <div className="bg-white rounded-xl shadow-lg p-8">
-          <h3 className="text-2xl font-bold text-[#2d3f4e] mb-6">
+          <h3 className="text-2xl font-bold text-primary mb-6">
             Book Your Appointment
           </h3>
 
           {/* Success/Error Message */}
           {message.text && (
             <div
-              className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
-                message.type === "success"
+              className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${message.type === "success"
                   ? "bg-green-100 text-green-800 border border-green-300"
                   : "bg-red-100 text-red-800 border border-red-300"
-              }`}
+                }`}
             >
               {message.type === "success" ? (
                 <FaCheckCircle />
@@ -184,7 +183,7 @@ export default function BookAppointment() {
                   name="patientName"
                   value={formData.patientName}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#67c0b3] focus:outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:outline-none"
                   required
                 />
               </div>
@@ -197,7 +196,7 @@ export default function BookAppointment() {
                   name="patientEmail"
                   value={formData.patientEmail}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#67c0b3] focus:outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:outline-none"
                   required
                 />
               </div>
@@ -210,7 +209,7 @@ export default function BookAppointment() {
                   name="patientPhone"
                   value={formData.patientPhone}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#67c0b3] focus:outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:outline-none"
                   required
                 />
               </div>
@@ -224,7 +223,7 @@ export default function BookAppointment() {
                   onChange={(e) => setSelectedDate(e.target.value)}
                   min={today}
                   max={maxDateStr}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#67c0b3] focus:outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:outline-none"
                   required
                 />
               </div>
@@ -240,7 +239,7 @@ export default function BookAppointment() {
                 value={formData.reason}
                 onChange={handleChange}
                 rows="3"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#67c0b3] focus:outline-none"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:outline-none"
                 placeholder="Brief description of your concern..."
               ></textarea>
             </div>
@@ -260,13 +259,12 @@ export default function BookAppointment() {
                         type="button"
                         onClick={() => !isBooked && setSelectedSlot(slot)}
                         disabled={isBooked}
-                        className={`py-3 px-4 rounded-lg font-semibold transition transform ${
-                          isBooked
+                        className={`py-3 px-4 rounded-lg font-semibold transition transform ${isBooked
                             ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                             : selectedSlot === slot
-                            ? "bg-[#67c0b3] text-white shadow-lg scale-105"
-                            : "bg-white border-2 border-gray-300 hover:border-[#67c0b3] hover:scale-105"
-                        }`}
+                              ? "bg-accent text-white shadow-lg scale-105"
+                              : "bg-white border-2 border-gray-300 hover:border-accent hover:scale-105"
+                          }`}
                       >
                         {slot}
                         {isBooked && <div className="text-xs mt-1">Booked</div>}
@@ -281,11 +279,10 @@ export default function BookAppointment() {
             <button
               type="submit"
               disabled={loading || !selectedSlot}
-              className={`w-full py-4 rounded-lg font-semibold text-white text-lg transition transform ${
-                loading || !selectedSlot
+              className={`w-full py-4 rounded-lg font-semibold text-white text-lg transition transform ${loading || !selectedSlot
                   ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-[#67c0b3] hover:bg-[#5ab0a3] hover:scale-105 shadow-lg"
-              }`}
+                  : "bg-accent hover:bg-accent-600 hover:scale-105 shadow-lg"
+                }`}
             >
               {loading ? "Booking..." : "Confirm Appointment"}
             </button>

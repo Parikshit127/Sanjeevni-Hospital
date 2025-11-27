@@ -47,7 +47,7 @@ export default function FinancialMetrics() {
     if (loading)
         return (
             <div className="flex justify-center items-center h-64">
-                <div className="w-12 h-12 border-4 border-[#67c0b3] border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
 
@@ -58,8 +58,8 @@ export default function FinancialMetrics() {
 
     return (
         <div className="space-y-8">
-            <h2 className="text-2xl font-bold text-[#2d3f4e] flex items-center gap-2">
-                <FaMoneyBillWave className="text-[#67c0b3]" /> Financial Metrics
+            <h2 className="text-2xl font-bold text-primary flex items-center gap-2">
+                <FaMoneyBillWave className="text-accent" /> Financial Metrics
             </h2>
 
             {/* Key Stats Cards */}
