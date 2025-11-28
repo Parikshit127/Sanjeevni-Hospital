@@ -35,6 +35,13 @@ export default function MyAppointments() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const apps = res.data.appointments || [];
+      console.log('📊 Fetched appointments:', apps.length);
+      console.log('Appointments data:', apps.map(a => ({
+        id: a._id,
+        status: a.status,
+        doctor: a.doctorId?.name,
+        hasDoctor: !!a.doctorId
+      })));
 
       // Filter out mock/placeholder appointments before showing to the user.
       // Criteria: flag `isMock` set, missing doctor info, or placeholder images.
@@ -47,6 +54,7 @@ export default function MyAppointments() {
         return true;
       });
 
+      console.log('✅ Real appointments after filtering:', realAppointments.length);
       setAppointments(realAppointments);
     } catch (error) {
       console.error("Error fetching appointments:", error);
@@ -131,27 +139,23 @@ export default function MyAppointments() {
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case "confirmed":
+      case "booked":
         return <FaCheckCircle className="text-green-500" />;
       case "cancelled":
         return <FaTimesCircle className="text-red-500" />;
-      case "completed":
-        return <FaCheckCircle className="text-blue-500" />;
       default:
-        return <FaHourglassHalf className="text-yellow-500" />;
+        return <FaCheckCircle className="text-green-500" />;
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "confirmed":
+      case "booked":
         return "bg-green-100 text-green-800 border-green-300";
       case "cancelled":
         return "bg-red-100 text-red-800 border-red-300";
-      case "completed":
-        return "bg-blue-100 text-blue-800 border-blue-300";
       default:
-        return "bg-yellow-100 text-yellow-800 border-yellow-300";
+        return "bg-green-100 text-green-800 border-green-300";
     }
   };
 
@@ -183,7 +187,7 @@ export default function MyAppointments() {
 
         {/* Filter Buttons */}
         <div className="flex flex-wrap gap-3 mb-8">
-          {["all", "pending", "confirmed", "completed", "cancelled"].map(
+          {["all", "booked", "cancelled"].map(
             (status) => (
               <button
                 key={status}
@@ -271,7 +275,7 @@ export default function MyAppointments() {
                         </p>
                       </div>
 
-                      {(appointment.status === "pending" || appointment.status === "confirmed") && (
+                      {appointment.status === "booked" && (
                         <div className="flex gap-2">
                           <button
                             onClick={() => openRescheduleModal(appointment)}

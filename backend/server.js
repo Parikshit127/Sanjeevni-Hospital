@@ -1,15 +1,19 @@
+const dotenv = require("dotenv");
+// Load environment variables FIRST before any other imports
+dotenv.config();
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const dotenv = require("dotenv");
+const path = require("path");
 
-// Import Routes
+// Import Routes (after dotenv is configured)
 const authRoutes = require("./routes/auth");
 const doctorRoutes = require("./routes/doctors");
 const appointmentRoutes = require("./routes/appointments");
 const adminRoutes = require("./routes/admin");
-
-dotenv.config();
+const paymentsRoutes = require("./routes/payments");
+const uploadRoutes = require("./routes/upload");
 
 const app = express();
 
@@ -41,6 +45,9 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Serve uploaded files statically
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Database Connection
 mongoose
@@ -81,6 +88,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/doctors", doctorRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/payments", paymentsRoutes);
+app.use("/api/upload", uploadRoutes);
+
 
 // Test Route
 app.get("/", (req, res) => {

@@ -243,6 +243,14 @@ function AppointmentsManagement() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Filter state
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [filterMode, setFilterMode] = useState("today"); // 'all' | 'today' | 'date' | 'range' | 'month'
+  const [selectedDate, setSelectedDate] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState("");
+
   useEffect(() => {
     fetchAppointments();
   }, []);
@@ -281,6 +289,69 @@ function AppointmentsManagement() {
     }
   };
 
+  // Filter helpers
+  const isSameDate = (d1, d2) => {
+    return (
+      d1.getFullYear() === d2.getFullYear() &&
+      d1.getMonth() === d2.getMonth() &&
+      d1.getDate() === d2.getDate()
+    );
+  };
+
+  const parseYMD = (value) => {
+    if (!value) return null;
+    const d = new Date(value);
+    return isNaN(d.getTime()) ? null : d;
+  };
+
+  // Effective filter mode
+  const effectiveFilterMode = showAdvancedFilters ? filterMode : "today";
+
+  // Apply filters
+  const filteredAppointments = appointments
+    .slice()
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .filter((app) => {
+      const appDate = new Date(app.date);
+
+      if (effectiveFilterMode === "all") return true;
+
+      if (effectiveFilterMode === "today") {
+        const today = new Date();
+        return isSameDate(appDate, today);
+      }
+
+      if (effectiveFilterMode === "date") {
+        const target = parseYMD(selectedDate);
+        if (!target) return true;
+        return isSameDate(appDate, target);
+      }
+
+      if (effectiveFilterMode === "range") {
+        const from = parseYMD(fromDate);
+        const to = parseYMD(toDate);
+
+        if (!from && !to) return true;
+        if (from && appDate < from) return false;
+        if (to) {
+          const toEnd = new Date(to);
+          toEnd.setHours(23, 59, 59, 999);
+          if (appDate > toEnd) return false;
+        }
+        return true;
+      }
+
+      if (effectiveFilterMode === "month") {
+        if (!selectedMonth) return true;
+        const [year, month] = selectedMonth.split("-");
+        const appYear = appDate.getFullYear();
+        const appMonth = appDate.getMonth() + 1;
+        return appYear === Number(year) && appMonth === Number(month);
+      }
+
+      return true;
+    });
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -307,86 +378,229 @@ function AppointmentsManagement() {
     );
   }
 
-  if (appointments.length === 0) {
-    return (
-      <div className="bg-white rounded-xl shadow-lg p-12 text-center">
-        <FaCalendarCheck className="text-6xl text-gray-300 mx-auto mb-4" />
-        <p className="text-gray-500 text-lg">No appointments found</p>
-      </div>
-    );
-  }
-
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">
-        All Appointments ({appointments.length})
-      </h2>
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-primary text-white">
-              <tr>
-                <th className="px-6 py-3 text-left">Patient</th>
-                <th className="px-6 py-3 text-left">Doctor</th>
-                <th className="px-6 py-3 text-left">Date & Time</th>
-                <th className="px-6 py-3 text-left">Fee</th>
-                <th className="px-6 py-3 text-left">Status</th>
-                <th className="px-6 py-3 text-left">Payment</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {appointments.map((apt) => (
-                <tr key={apt._id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <div>
-                      <p className="font-semibold">{apt.patientName}</p>
-                      <p className="text-sm text-gray-600">
-                        {apt.patientEmail}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">{apt.doctorId?.name || "N/A"}</td>
-                  <td className="px-6 py-4">
-                    <div>
-                      <p>{new Date(apt.date).toLocaleDateString()}</p>
-                      <p className="text-sm text-gray-600">{apt.timeSlot}</p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 font-semibold">
-                    ₹{apt.consultationFee}
-                  </td>
-                  <td className="px-6 py-4">
-                    <select
-                      value={apt.status}
-                      onChange={(e) =>
-                        updateStatus(apt._id, e.target.value, apt.paymentStatus)
-                      }
-                      className="px-3 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="confirmed">Confirmed</option>
-                      <option value="completed">Completed</option>
-                      <option value="cancelled">Cancelled</option>
-                    </select>
-                  </td>
-                  <td className="px-6 py-4">
-                    <select
-                      value={apt.paymentStatus}
-                      onChange={(e) =>
-                        updateStatus(apt._id, apt.status, e.target.value)
-                      }
-                      className="px-3 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="paid">Paid</option>
-                    </select>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Header with filter toggle */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-3">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800">
+            Appointments ({filteredAppointments.length} of {appointments.length})
+          </h2>
+          <p className="text-sm text-gray-500 mt-1">
+            {showAdvancedFilters
+              ? "Viewing appointments with advanced filters."
+              : "Showing only today's appointments."}
+          </p>
         </div>
+
+        <button
+          onClick={() => setShowAdvancedFilters((prev) => !prev)}
+          className="self-start md:self-auto inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border border-accent text-accent hover:bg-accent hover:text-white transition"
+        >
+          {showAdvancedFilters ? "Back to today view" : "See more"}
+        </button>
       </div>
+
+      {/* Advanced Filter Bar */}
+      {showAdvancedFilters && (
+        <div className="bg-gray-50 rounded-xl p-4 mb-6">
+          <div className="flex flex-wrap gap-2 mb-3">
+            <button
+              onClick={() => {
+                setFilterMode("all");
+                setSelectedDate("");
+                setFromDate("");
+                setToDate("");
+                setSelectedMonth("");
+              }}
+              className={`px-4 py-2 rounded-full text-sm font-semibold border transition ${filterMode === "all"
+                ? "bg-accent text-white border-accent"
+                : "border-gray-300 text-gray-700 hover:bg-white"
+                }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => {
+                setFilterMode("today");
+                setSelectedDate("");
+                setFromDate("");
+                setToDate("");
+                setSelectedMonth("");
+              }}
+              className={`px-4 py-2 rounded-full text-sm font-semibold border transition ${filterMode === "today"
+                ? "bg-accent text-white border-accent"
+                : "border-gray-300 text-gray-700 hover:bg-white"
+                }`}
+            >
+              Today
+            </button>
+            <button
+              onClick={() => {
+                setFilterMode("date");
+                setFromDate("");
+                setToDate("");
+                setSelectedMonth("");
+              }}
+              className={`px-4 py-2 rounded-full text-sm font-semibold border transition ${filterMode === "date"
+                ? "bg-accent text-white border-accent"
+                : "border-gray-300 text-gray-700 hover:bg-white"
+                }`}
+            >
+              Specific Date
+            </button>
+            <button
+              onClick={() => {
+                setFilterMode("range");
+                setSelectedDate("");
+                setSelectedMonth("");
+              }}
+              className={`px-4 py-2 rounded-full text-sm font-semibold border transition ${filterMode === "range"
+                ? "bg-accent text-white border-accent"
+                : "border-gray-300 text-gray-700 hover:bg-white"
+                }`}
+            >
+              Date Range
+            </button>
+            <button
+              onClick={() => {
+                setFilterMode("month");
+                setSelectedDate("");
+                setFromDate("");
+                setToDate("");
+              }}
+              className={`px-4 py-2 rounded-full text-sm font-semibold border transition ${filterMode === "month"
+                ? "bg-accent text-white border-accent"
+                : "border-gray-300 text-gray-700 hover:bg-white"
+                }`}
+            >
+              Month
+            </button>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 text-sm">
+            {filterMode === "date" && (
+              <div className="flex items-center gap-2">
+                <span className="text-gray-600 font-medium">Date:</span>
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className="border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-accent"
+                />
+              </div>
+            )}
+
+            {filterMode === "range" && (
+              <>
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-600 font-medium">From:</span>
+                  <input
+                    type="date"
+                    value={fromDate}
+                    onChange={(e) => setFromDate(e.target.value)}
+                    className="border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-accent"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-600 font-medium">To:</span>
+                  <input
+                    type="date"
+                    value={toDate}
+                    onChange={(e) => setToDate(e.target.value)}
+                    className="border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-accent"
+                  />
+                </div>
+              </>
+            )}
+
+            {filterMode === "month" && (
+              <div className="flex items-center gap-2">
+                <span className="text-gray-600 font-medium">Month:</span>
+                <input
+                  type="month"
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className="border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-accent"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Appointments Table */}
+      {filteredAppointments.length === 0 ? (
+        <div className="bg-white rounded-xl shadow-lg p-12 text-center">
+          <FaCalendarCheck className="text-6xl text-gray-300 mx-auto mb-4" />
+          <p className="text-gray-500 text-lg">No appointments found for this view</p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-primary text-white">
+                <tr>
+                  <th className="px-6 py-3 text-left">Token</th>
+                  <th className="px-6 py-3 text-left">Patient</th>
+                  <th className="px-6 py-3 text-left">Contact</th>
+                  <th className="px-6 py-3 text-left">Doctor</th>
+                  <th className="px-6 py-3 text-left">Date & Time</th>
+                  <th className="px-6 py-3 text-left">Fee</th>
+                  <th className="px-6 py-3 text-left">Status</th>
+                  <th className="px-6 py-3 text-left">Payment</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {filteredAppointments.map((apt) => (
+                  <tr key={apt._id} className="hover:bg-gray-50 transition">
+                    <td className="px-6 py-4">
+                      <span className="bg-accent text-white px-3 py-1 rounded-full font-bold text-xs">
+                        #{apt.tokenNumber}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="font-semibold text-gray-900">{apt.patientName}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-sm text-gray-600">{apt.patientEmail}</p>
+                      <p className="text-sm text-gray-600">{apt.patientPhone}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="font-medium">{apt.doctorId?.name || "N/A"}</p>
+                      {apt.doctorId?.specialty && (
+                        <p className="text-xs text-gray-500">{apt.doctorId.specialty}</p>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="font-medium">{new Date(apt.date).toLocaleDateString()}</p>
+                      <p className="text-sm text-accent font-semibold">{apt.timeSlot}</p>
+                    </td>
+                    <td className="px-6 py-4 font-semibold text-green-600">
+                      ₹{apt.consultationFee}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`px-3 py-1.5 rounded-full text-sm font-semibold ${apt.status === "booked"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                          }`}
+                      >
+                        {apt.status === "booked" ? "Booked" : "Cancelled"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
+                        Paid
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -411,6 +625,9 @@ function DoctorsManagement() {
     about: "",
     password: "",
   });
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     fetchDoctors();
@@ -435,10 +652,73 @@ function DoctorsManagement() {
     }
   };
 
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size must be less than 5MB');
+        return;
+      }
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadImage = async () => {
+    if (!selectedFile) return null;
+
+    setUploading(true);
+    try {
+      const uploadFormData = new FormData();
+      uploadFormData.append('image', selectedFile);
+
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      };
+
+      const response = await axios.post(
+        `${API_URL}/upload/image`,
+        uploadFormData,
+        config
+      );
+
+      return response.data.imagePath;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Failed to upload image: ' + (error.response?.data?.message || error.message));
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const config = createAxiosConfig();
+
+      // Upload image first if a new file is selected
+      let imageUrl = formData.image;
+      if (selectedFile) {
+        const uploadedPath = await uploadImage();
+        if (uploadedPath) {
+          imageUrl = uploadedPath;
+        } else {
+          // If upload failed and there's no existing image, don't proceed
+          if (!formData.image) {
+            alert('Please try uploading the image again');
+            return;
+          }
+        }
+      }
+
       if (editingDoctor) {
         // Construct a clean payload with only allowed fields
         const updateData = {
@@ -454,7 +734,7 @@ function DoctorsManagement() {
           lunchStart: formData.lunchStart,
           lunchEnd: formData.lunchEnd,
           slotDuration: formData.slotDuration,
-          image: formData.image,
+          image: imageUrl,
           about: formData.about
         };
 
@@ -473,8 +753,9 @@ function DoctorsManagement() {
           config
         );
       } else {
-        console.log("Creating doctor with data:", formData);
-        await axios.post(`${API_URL}/doctors`, formData, config);
+        const createData = { ...formData, image: imageUrl };
+        console.log("Creating doctor with data:", createData);
+        await axios.post(`${API_URL}/doctors`, createData, config);
       }
       fetchDoctors();
       setShowModal(false);
@@ -493,6 +774,8 @@ function DoctorsManagement() {
   const handleEdit = (doctor) => {
     setEditingDoctor(doctor);
     setFormData(doctor);
+    setSelectedFile(null);
+    setImagePreview(doctor.image || "");
     setShowModal(true);
   };
 
@@ -521,6 +804,8 @@ function DoctorsManagement() {
       about: "",
       password: "",
     });
+    setSelectedFile(null);
+    setImagePreview("");
     setEditingDoctor(null);
   };
 
@@ -584,14 +869,16 @@ function DoctorsManagement() {
             >
               <img
                 src={
-                  doctor.image ||
-                  "https://via.placeholder.com/400x300?text=Doctor"
+                  doctor.image
+                    ? doctor.image.startsWith('http')
+                      ? doctor.image
+                      : `${API_URL.replace('/api', '')}${doctor.image}`
+                    : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect fill='%23e0e0e0' width='400' height='300'/%3E%3Ctext fill='%23999' font-family='sans-serif' font-size='24' dy='10.5' font-weight='bold' x='50%25' y='50%25' text-anchor='middle'%3EDoctor%3C/text%3E%3C/svg%3E"
                 }
                 alt={doctor.name}
                 className="w-full h-48 object-cover"
                 onError={(e) => {
-                  e.target.src =
-                    "https://via.placeholder.com/400x300?text=Doctor";
+                  e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect fill='%23e0e0e0' width='400' height='300'/%3E%3Ctext fill='%23999' font-family='sans-serif' font-size='24' dy='10.5' font-weight='bold' x='50%25' y='50%25' text-anchor='middle'%3EDoctor%3C/text%3E%3C/svg%3E";
                 }}
               />
               <div className="p-6">
@@ -727,16 +1014,41 @@ function DoctorsManagement() {
                   className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                   required
                 />
-                <input
-                  type="url"
-                  placeholder="Image URL"
-                  value={formData.image}
-                  onChange={(e) =>
-                    setFormData({ ...formData, image: e.target.value })
-                  }
-                  className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
-                />
               </div>
+
+              {/* Image Upload Section */}
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Doctor Image
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Upload an image (max 5MB). Supported formats: JPG, PNG, GIF, WebP
+                </p>
+
+                {/* Image Preview */}
+                {imagePreview && (
+                  <div className="mt-3">
+                    <p className="text-sm font-semibold text-gray-700 mb-2">Preview:</p>
+                    <img
+                      src={imagePreview.startsWith('http') || imagePreview.startsWith('/')
+                        ? `${API_URL.replace('/api', '')}${imagePreview}`
+                        : imagePreview}
+                      alt="Preview"
+                      className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200"
+                      onError={(e) => {
+                        e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%23e0e0e0' width='150' height='150'/%3E%3Ctext fill='%23999' font-family='sans-serif' font-size='16' dy='10.5' font-weight='bold' x='50%25' y='50%25' text-anchor='middle'%3EDoctor%3C/text%3E%3C/svg%3E";
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+
               <textarea
                 placeholder="About Doctor"
                 value={formData.about}
@@ -749,9 +1061,13 @@ function DoctorsManagement() {
               <div className="flex gap-4">
                 <button
                   type="submit"
-                  className="flex-1 bg-accent hover:bg-accent-600 text-white py-3 rounded-lg font-semibold transition"
+                  disabled={uploading}
+                  className={`flex-1 py-3 rounded-lg font-semibold transition ${uploading
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-accent hover:bg-accent-600 text-white'
+                    }`}
                 >
-                  {editingDoctor ? "Update" : "Add"} Doctor
+                  {uploading ? 'Uploading...' : editingDoctor ? "Update Doctor" : "Add Doctor"}
                 </button>
                 <button
                   type="button"

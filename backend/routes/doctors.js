@@ -3,6 +3,7 @@ const router = express.Router();
 const Doctor = require("../models/Doctor");
 const Appointment = require("../models/Appointment");
 const { authMiddleware, adminMiddleware } = require("../middleware/auth");
+const mongoose = require("mongoose");
 
 // @route   GET /api/doctors
 // @desc    Get all active doctors
@@ -41,6 +42,7 @@ router.get("/:id", async (req, res) => {
 router.get("/:id/appointments", authMiddleware, async (req, res) => {
   try {
     const appointments = await Appointment.find({ doctorId: req.params.id })
+      .populate("userId", "name email phone")
       .sort({ date: 1, timeSlot: 1 });
     res.json({ success: true, appointments });
   } catch (error) {
@@ -257,6 +259,93 @@ router.put("/appointments/:id/status", authMiddleware, async (req, res) => {
     res.json({ success: true, appointment });
   } catch (error) {
     console.error("Error updating appointment status:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+// @route   GET /api/doctors/:id/analytics/financial
+// @desc    Get financial metrics for a specific doctor
+// @access  Private (Doctor/Admin)
+router.get("/:id/analytics/financial", authMiddleware, async (req, res) => {
+  try {
+    const doctorId = req.params.id;
+    const { filter, startDate, endDate } = req.query;
+
+    console.log(`💰 Fetching financial metrics for doctor ${doctorId} with filter: ${filter}`);
+
+    let matchStage = {
+      doctorId: new mongoose.Types.ObjectId(doctorId),
+      paymentStatus: "paid"
+    };
+
+    // Date Filtering Logic
+    try {
+      if (filter === 'daily') {
+        const date = startDate ? new Date(startDate) : new Date();
+        if (isNaN(date.getTime())) throw new Error("Invalid startDate");
+        date.setHours(0, 0, 0, 0);
+        const nextDay = new Date(date);
+        nextDay.setDate(nextDay.getDate() + 1);
+        matchStage.createdAt = { $gte: date, $lt: nextDay };
+      } else if (filter === 'monthly') {
+        const date = startDate ? new Date(startDate) : new Date();
+        if (isNaN(date.getTime())) throw new Error("Invalid startDate");
+        const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+        const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59);
+        matchStage.createdAt = { $gte: startOfMonth, $lte: endOfMonth };
+      } else if (filter === 'range' && startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) throw new Error("Invalid range dates");
+        matchStage.createdAt = {
+          $gte: start,
+          $lte: new Date(end.setHours(23, 59, 59))
+        };
+      }
+    } catch (dateError) {
+      console.error("❌ Date parsing error:", dateError);
+      // Fallback to last 30 days if error
+      const last30Days = new Date();
+      last30Days.setDate(last30Days.getDate() - 30);
+      matchStage.createdAt = { $gte: last30Days };
+    }
+
+    // 1. Total Revenue (based on filter)
+    const revenueData = await Appointment.aggregate([
+      { $match: matchStage },
+      { $group: { _id: null, totalRevenue: { $sum: "$consultationFee" }, count: { $sum: 1 } } }
+    ]);
+
+    const totalRevenue = revenueData.length > 0 ? revenueData[0].totalRevenue : 0;
+    const appointmentCount = revenueData.length > 0 ? revenueData[0].count : 0;
+
+    // 2. Revenue Trend
+    let groupByFormat = "%Y-%m-%d";
+    if (filter === 'daily') groupByFormat = "%H:00"; // Hourly for daily view
+
+    const revenueTrend = await Appointment.aggregate([
+      { $match: matchStage },
+      {
+        $group: {
+          _id: { $dateToString: { format: groupByFormat, date: "$createdAt" } },
+          revenue: { $sum: "$consultationFee" },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        totalRevenue,
+        appointmentCount,
+        revenueTrend
+      }
+    });
+
+  } catch (error) {
+    console.error("❌ Doctor financial metrics error:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });

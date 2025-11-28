@@ -40,14 +40,18 @@ const appointmentSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["pending", "confirmed", "completed", "cancelled"],
-    default: "pending",
+    enum: ["booked", "cancelled"],
+    default: "booked", // Default to booked since payment is required
   },
   paymentStatus: {
     type: String,
-    enum: ["pending", "paid"],
-    default: "pending",
+    enum: ["paid"], // Only paid appointments are created
+    default: "paid",
   },
+  razorpayOrderId: String,
+  razorpayPaymentId: String,
+  razorpaySignature: String,
+
   reason: {
     type: String,
     default: "",

@@ -55,21 +55,20 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
-          scrolled 
-            ? 'bg-white/95 backdrop-blur-md shadow-lg py-3' 
-            : 'bg-white/80 backdrop-blur-sm py-4'
-        }`}
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${scrolled
+          ? 'bg-white/95 backdrop-blur-md shadow-lg py-3'
+          : 'bg-white/80 backdrop-blur-sm py-4'
+          }`}
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           {/* Logo & Brand */}
           <Link to="/" className="flex items-center space-x-3 group">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full opacity-0 group-hover:opacity-20 blur-md transition-opacity duration-300"></div>
-              <img 
-                src={logo} 
-                alt="Sanjivani Logo" 
-                className="w-10 h-10 rounded-full transition-transform duration-300 group-hover:scale-110 relative z-10" 
+              <img
+                src={logo}
+                alt="Sanjivani Logo"
+                className="w-10 h-10 rounded-full transition-transform duration-300 group-hover:scale-110 relative z-10"
               />
             </div>
             <div>
@@ -82,21 +81,21 @@ export default function Navbar() {
 
           {/* Desktop Nav */}
           <div className="hidden lg:flex items-center space-x-8">
-            <button 
+            <button
               onClick={() => scrollToSection('about')}
               className={navLink}
             >
               About
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-teal-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
             </button>
-            <button 
+            <button
               onClick={() => scrollToSection('services')}
               className={navLink}
             >
               Services
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-teal-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
             </button>
-            <Link 
+            <Link
               to="/doctors"
               onClick={() => window.scrollTo(0, 0)}
               className={navLink}
@@ -104,14 +103,14 @@ export default function Navbar() {
               Doctors
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-teal-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
             </Link>
-            <button 
+            <button
               onClick={() => scrollToSection('reviews')}
               className={navLink}
             >
               Reviews
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-teal-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
             </button>
-            <button 
+            <button
               onClick={() => scrollToSection('contact')}
               className={navLink}
             >
@@ -127,6 +126,7 @@ export default function Navbar() {
                 {user.role === 'admin' ? (
                   <Link
                     to="/admin"
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                     className="group flex items-center gap-2 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold px-4 py-2 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                   >
                     <FaShieldAlt className="group-hover:rotate-12 transition-transform" />
@@ -135,6 +135,7 @@ export default function Navbar() {
                 ) : user.role === 'doctor' ? (
                   <Link
                     to="/doctor-dashboard"
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                     className="group flex items-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-semibold px-4 py-2 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                   >
                     <FaUserMd className="group-hover:scale-110 transition-transform" />
@@ -143,6 +144,7 @@ export default function Navbar() {
                 ) : (
                   <Link
                     to="/my-appointments"
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                     className="group flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold px-4 py-2 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                   >
                     <FaCalendarAlt className="group-hover:scale-110 transition-transform" />
@@ -192,55 +194,54 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         <div
-          className={`lg:hidden bg-white border-t border-gray-100 transition-all duration-500 overflow-hidden ${
-            menuOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
-          }`}
+          className={`lg:hidden bg-white border-t border-gray-100 transition-all duration-500 overflow-hidden ${menuOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
+            }`}
         >
           <div className="max-w-7xl mx-auto px-6 py-6 space-y-4">
             {/* Mobile Navigation Links */}
             <div className="space-y-3 pb-4 border-b border-gray-100">
-              <button 
+              <button
                 onClick={() => {
                   toggleMenu();
                   scrollToSection('about');
-                }} 
+                }}
                 className="block text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors w-full text-left"
               >
                 About
               </button>
-              <button 
+              <button
                 onClick={() => {
                   toggleMenu();
                   scrollToSection('services');
-                }} 
+                }}
                 className="block text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors w-full text-left"
               >
                 Services
               </button>
-              <Link 
+              <Link
                 onClick={() => {
                   toggleMenu();
                   window.scrollTo(0, 0);
-                }} 
-                to="/doctors" 
+                }}
+                to="/doctors"
                 className="block text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors"
               >
                 Doctors
               </Link>
-              <button 
+              <button
                 onClick={() => {
                   toggleMenu();
                   scrollToSection('reviews');
-                }} 
+                }}
                 className="block text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors w-full text-left"
               >
                 Reviews
               </button>
-              <button 
+              <button
                 onClick={() => {
                   toggleMenu();
                   scrollToSection('contact');
-                }} 
+                }}
                 className="block text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors w-full text-left"
               >
                 Contact
@@ -253,7 +254,10 @@ export default function Navbar() {
                 <>
                   {user.role === 'admin' ? (
                     <Link
-                      onClick={toggleMenu}
+                      onClick={() => {
+                        toggleMenu();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
                       to="/admin"
                       className="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-3 rounded-lg text-sm font-semibold shadow-md"
                     >
@@ -262,7 +266,10 @@ export default function Navbar() {
                     </Link>
                   ) : user.role === 'doctor' ? (
                     <Link
-                      onClick={toggleMenu}
+                      onClick={() => {
+                        toggleMenu();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
                       to="/doctor-dashboard"
                       className="flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-600 text-white px-4 py-3 rounded-lg text-sm font-semibold shadow-md"
                     >
@@ -271,7 +278,10 @@ export default function Navbar() {
                     </Link>
                   ) : (
                     <Link
-                      onClick={toggleMenu}
+                      onClick={() => {
+                        toggleMenu();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
                       to="/my-appointments"
                       className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-3 rounded-lg text-sm font-semibold shadow-md"
                     >

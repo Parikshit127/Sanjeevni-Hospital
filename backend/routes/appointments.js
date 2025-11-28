@@ -272,10 +272,10 @@ router.put("/:id/reschedule", authMiddleware, async (req, res) => {
       return res.status(404).json({ message: "Appointment not found" });
     }
 
-    if (appointment.status === "cancelled" || appointment.status === "completed") {
+    if (appointment.status === "cancelled") {
       return res
         .status(400).json({
-          message: `Cannot reschedule ${appointment.status} appointment`
+          message: "Cannot reschedule cancelled appointment"
         });
     }
 

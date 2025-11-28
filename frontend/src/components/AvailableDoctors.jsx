@@ -115,19 +115,33 @@ export default function AvailableDoctors() {
                                 <div className="relative h-56 overflow-hidden bg-gradient-to-br from-teal-50 to-cyan-50">
                                     {doctor.image ? (
                                         <img
-                                            src={doctor.image}
+                                            src={
+                                                doctor.image.startsWith('http')
+                                                    ? doctor.image
+                                                    : `${API_URL.replace('/api', '')}${doctor.image}`
+                                            }
                                             alt={doctor.name}
                                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                            onError={(e) => {
+                                                e.target.style.display = 'none';
+                                                e.target.parentElement.innerHTML = `
+                                                    <div class="w-full h-full flex items-center justify-center">
+                                                        <svg class="w-20 h-20 text-teal-300" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                                        </svg>
+                                                    </div>
+                                                `;
+                                            }}
                                         />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center">
                                             <FaUserMd className="text-7xl text-teal-300 group-hover:scale-110 transition-transform duration-500" />
                                         </div>
                                     )}
-                                    
+
                                     {/* Overlay on hover */}
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                    
+
                                     {/* Badge */}
                                     {doctor.rating && (
                                         <div className="absolute top-4 right-4 bg-white px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1">
@@ -233,7 +247,7 @@ export default function AvailableDoctors() {
                         { icon: <FaCalendarAlt />, label: 'Easy Booking', desc: 'Online appointment system' },
                         { icon: <FaAward />, label: 'Quality Care', desc: '98% patient satisfaction' }
                     ].map((item, idx) => (
-                        <div 
+                        <div
                             key={idx}
                             className="flex items-center gap-4 bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow"
                         >

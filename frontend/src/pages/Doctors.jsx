@@ -71,8 +71,8 @@ export default function Doctors() {
               key={specialty}
               onClick={() => setFilter(specialty)}
               className={`px-6 py-2 rounded-full font-semibold transition transform hover:scale-105 ${filter === specialty
-                  ? "bg-accent text-white shadow-lg"
-                  : "bg-white text-gray-700 border border-gray-300 hover:border-accent"
+                ? "bg-accent text-white shadow-lg"
+                : "bg-white text-gray-700 border border-gray-300 hover:border-accent"
                 }`}
             >
               {specialty.charAt(0).toUpperCase() + specialty.slice(1)}
@@ -90,9 +90,18 @@ export default function Doctors() {
               {/* Doctor Image */}
               <div className="relative h-64 bg-gradient-to-br from-accent to-primary overflow-hidden">
                 <img
-                  src={doctor.image}
+                  src={
+                    doctor.image
+                      ? doctor.image.startsWith('http')
+                        ? doctor.image
+                        : `${API_URL.replace('/api', '')}${doctor.image}`
+                      : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect fill='%23e0e0e0' width='400' height='300'/%3E%3Ctext fill='%23999' font-family='sans-serif' font-size='24' dy='10.5' font-weight='bold' x='50%25' y='50%25' text-anchor='middle'%3EDoctor%3C/text%3E%3C/svg%3E"
+                  }
                   alt={doctor.name}
                   className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                  onError={(e) => {
+                    e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect fill='%23e0e0e0' width='400' height='300'/%3E%3Ctext fill='%23999' font-family='sans-serif' font-size='24' dy='10.5' font-weight='bold' x='50%25' y='50%25' text-anchor='middle'%3EDoctor%3C/text%3E%3C/svg%3E";
+                  }}
                 />
                 <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full">
                   <div className="flex items-center gap-1 text-yellow-500">

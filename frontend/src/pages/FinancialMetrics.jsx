@@ -15,7 +15,7 @@ import {
     Pie,
     Cell,
 } from "recharts";
-import { FaMoneyBillWave } from "react-icons/fa";
+import { FaMoneyBillWave, FaFilter } from "react-icons/fa";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
@@ -24,13 +24,22 @@ export default function FinancialMetrics() {
     const [metrics, setMetrics] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [filter, setFilter] = useState("monthly"); // daily, monthly, range
+    const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+    const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
 
     useEffect(() => {
         const fetchMetrics = async () => {
+            setLoading(true);
             try {
                 const token = localStorage.getItem("token");
                 const res = await axios.get(`${API_URL}/admin/analytics/financial`, {
                     headers: { Authorization: `Bearer ${token}` },
+                    params: {
+                        filter,
+                        startDate,
+                        endDate: filter === 'range' ? endDate : undefined
+                    }
                 });
                 setMetrics(res.data.data);
             } catch (err) {
@@ -42,7 +51,7 @@ export default function FinancialMetrics() {
         };
 
         fetchMetrics();
-    }, []);
+    }, [filter, startDate, endDate]);
 
     if (loading)
         return (
@@ -58,17 +67,65 @@ export default function FinancialMetrics() {
 
     return (
         <div className="space-y-8">
-            <h2 className="text-2xl font-bold text-primary flex items-center gap-2">
-                <FaMoneyBillWave className="text-accent" /> Financial Metrics
-            </h2>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <h2 className="text-2xl font-bold text-primary flex items-center gap-2">
+                    <FaMoneyBillWave className="text-accent" /> Financial Metrics
+                </h2>
+
+                {/* Filters */}
+                <div className="flex flex-wrap items-center gap-3 bg-white p-2 rounded-lg shadow-sm border">
+                    <div className="flex items-center gap-2 px-2 border-r">
+                        <FaFilter className="text-gray-400" />
+                        <select
+                            value={filter}
+                            onChange={(e) => setFilter(e.target.value)}
+                            className="bg-transparent font-medium text-gray-700 focus:outline-none"
+                        >
+                            <option value="daily">Daily</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="range">Custom Range</option>
+                        </select>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <input
+                            type={filter === 'monthly' ? "month" : "date"}
+                            value={startDate.substring(0, filter === 'monthly' ? 7 : 10)}
+                            onChange={(e) => {
+                                if (filter === 'monthly') {
+                                    setStartDate(`${e.target.value}-01`);
+                                } else {
+                                    setStartDate(e.target.value);
+                                }
+                            }}
+                            className="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+                        />
+                        {filter === 'range' && (
+                            <>
+                                <span className="text-gray-400">-</span>
+                                <input
+                                    type="date"
+                                    value={endDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                    className="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+                                />
+                            </>
+                        )}
+                    </div>
+                </div>
+            </div>
 
             {/* Key Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-green-500">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-gray-500 font-semibold uppercase">Total Revenue (30d)</p>
+                            <p className="text-sm text-gray-500 font-semibold uppercase">Total Revenue</p>
                             <p className="text-3xl font-bold text-gray-800">₹{totalRevenue.toLocaleString()}</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                                {filter === 'daily' ? 'For selected date' :
+                                    filter === 'monthly' ? 'For selected month' : 'For selected range'}
+                            </p>
                         </div>
                         <div className="p-3 bg-green-100 rounded-full text-green-600">
                             <FaMoneyBillWave size={24} />
@@ -80,7 +137,7 @@ export default function FinancialMetrics() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Revenue Trend */}
                 <div className="bg-white p-6 rounded-xl shadow-lg lg:col-span-2">
-                    <h3 className="text-lg font-bold text-gray-700 mb-4">Revenue Trend (Last 30 Days)</h3>
+                    <h3 className="text-lg font-bold text-gray-700 mb-4">Revenue Trend</h3>
                     <div className="h-80">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={metrics.revenueTrend}>
@@ -90,7 +147,14 @@ export default function FinancialMetrics() {
                                         <stop offset="95%" stopColor="#82ca9d" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <XAxis dataKey="_id" tick={{ fontSize: 12 }} tickFormatter={(str) => str.slice(5)} />
+                                <XAxis
+                                    dataKey="_id"
+                                    tick={{ fontSize: 12 }}
+                                    tickFormatter={(str) => {
+                                        if (filter === 'daily') return str;
+                                        return str.slice(5);
+                                    }}
+                                />
                                 <YAxis />
                                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                                 <Tooltip formatter={(value) => `₹${value}`} contentStyle={{ borderRadius: "8px" }} />

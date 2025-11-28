@@ -4,6 +4,7 @@ const Appointment = require("../models/Appointment");
 const Doctor = require("../models/Doctor");
 const User = require("../models/User");
 const { authMiddleware, adminMiddleware } = require("../middleware/auth");
+const mongoose = require("mongoose");
 
 // Apply middleware to all admin routes
 router.use(authMiddleware, adminMiddleware);
@@ -375,22 +376,61 @@ router.get("/analytics/operational", async (req, res) => {
 // @access  Private/Admin
 router.get("/analytics/financial", async (req, res) => {
   try {
-    console.log("💰 Fetching financial metrics...");
+    const { filter, startDate, endDate } = req.query;
+    console.log(`💰 Fetching financial metrics with filter: ${filter}, start: ${startDate}, end: ${endDate}`);
 
-    // 1. Revenue Trend (Last 30 Days)
-    const last30Days = new Date();
-    last30Days.setDate(last30Days.getDate() - 30);
+    let matchStage = {
+      paymentStatus: "paid"
+    };
+
+    // Date Filtering Logic
+    try {
+      if (filter === 'daily') {
+        const date = startDate ? new Date(startDate) : new Date();
+        if (isNaN(date.getTime())) throw new Error("Invalid startDate");
+        date.setHours(0, 0, 0, 0);
+        const nextDay = new Date(date);
+        nextDay.setDate(nextDay.getDate() + 1);
+        matchStage.createdAt = { $gte: date, $lt: nextDay };
+      } else if (filter === 'monthly') {
+        const date = startDate ? new Date(startDate) : new Date();
+        if (isNaN(date.getTime())) throw new Error("Invalid startDate");
+        const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+        const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59);
+        matchStage.createdAt = { $gte: startOfMonth, $lte: endOfMonth };
+      } else if (filter === 'range' && startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) throw new Error("Invalid range dates");
+        matchStage.createdAt = {
+          $gte: start,
+          $lte: new Date(end.setHours(23, 59, 59))
+        };
+      } else {
+        // Default to last 30 days
+        const last30Days = new Date();
+        last30Days.setDate(last30Days.getDate() - 30);
+        matchStage.createdAt = { $gte: last30Days };
+      }
+    } catch (dateError) {
+      console.error("❌ Date parsing error:", dateError);
+      // Fallback to last 30 days on error
+      const last30Days = new Date();
+      last30Days.setDate(last30Days.getDate() - 30);
+      matchStage.createdAt = { $gte: last30Days };
+    }
+
+    // 1. Revenue Trend
+    let groupByFormat = "%Y-%m-%d";
+    if (filter === 'daily') groupByFormat = "%H:00";
+
+    console.log("🔍 Match Stage:", JSON.stringify(matchStage, null, 2));
 
     const revenueTrend = await Appointment.aggregate([
-      {
-        $match: {
-          paymentStatus: "paid",
-          createdAt: { $gte: last30Days },
-        },
-      },
+      { $match: matchStage },
       {
         $group: {
-          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          _id: { $dateToString: { format: groupByFormat, date: "$createdAt" } },
           revenue: { $sum: "$consultationFee" },
         },
       },
@@ -399,7 +439,7 @@ router.get("/analytics/financial", async (req, res) => {
 
     // 2. Top Doctors by Revenue
     const topDoctors = await Appointment.aggregate([
-      { $match: { paymentStatus: "paid" } },
+      { $match: matchStage },
       {
         $group: {
           _id: "$doctorId",
@@ -427,7 +467,7 @@ router.get("/analytics/financial", async (req, res) => {
 
     // 3. Revenue by Service Type (Specialty)
     const revenueBySpecialty = await Appointment.aggregate([
-      { $match: { paymentStatus: "paid" } },
+      { $match: matchStage },
       {
         $lookup: {
           from: "doctors",
