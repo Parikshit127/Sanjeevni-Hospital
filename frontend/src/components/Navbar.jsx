@@ -103,6 +103,16 @@ export default function Navbar() {
               Doctors
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-teal-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
             </Link>
+            {user && user.role !== 'admin' && user.role !== 'doctor' && (
+              <Link
+                to="/my-appointments"
+                onClick={() => window.scrollTo(0, 0)}
+                className={navLink}
+              >
+                My Appointments
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-teal-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
+              </Link>
+            )}
             <button
               onClick={() => scrollToSection('reviews')}
               className={navLink}
@@ -228,6 +238,18 @@ export default function Navbar() {
               >
                 Doctors
               </Link>
+              {user && user.role !== 'admin' && user.role !== 'doctor' && (
+                <Link
+                  onClick={() => {
+                    toggleMenu();
+                    window.scrollTo(0, 0);
+                  }}
+                  to="/my-appointments"
+                  className="block text-gray-700 hover:text-teal-600 font-medium py-2 transition-colors"
+                >
+                  My Appointments
+                </Link>
+              )}
               <button
                 onClick={() => {
                   toggleMenu();

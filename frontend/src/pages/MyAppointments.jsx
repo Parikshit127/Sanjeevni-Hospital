@@ -6,7 +6,6 @@ import {
   FaUserMd,
   FaCheckCircle,
   FaTimesCircle,
-  FaHourglassHalf,
 } from "react-icons/fa";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
@@ -216,9 +215,18 @@ export default function MyAppointments() {
                     {/* Doctor Info */}
                     <div className="flex items-start gap-4">
                       <img
-                        src={appointment.doctorId.image}
+                        src={
+                          appointment.doctorId.image
+                            ? appointment.doctorId.image.startsWith('http')
+                              ? appointment.doctorId.image
+                              : `${API_URL.replace('/api', '')}${appointment.doctorId.image}`
+                            : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%23e0e0e0' width='150' height='150'/%3E%3Ctext fill='%23999' font-family='sans-serif' font-size='16' dy='10.5' font-weight='bold' x='50%25' y='50%25' text-anchor='middle'%3EDoctor%3C/text%3E%3C/svg%3E"
+                        }
                         alt={appointment.doctorId.name}
                         className="w-20 h-20 rounded-full object-cover border-4 border-accent"
+                        onError={(e) => {
+                          e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%23e0e0e0' width='150' height='150'/%3E%3Ctext fill='%23999' font-family='sans-serif' font-size='16' dy='10.5' font-weight='bold' x='50%25' y='50%25' text-anchor='middle'%3EDoctor%3C/text%3E%3C/svg%3E";
+                        }}
                       />
                       <div>
                         <h3 className="text-xl font-bold text-primary mb-1 flex items-center gap-2">

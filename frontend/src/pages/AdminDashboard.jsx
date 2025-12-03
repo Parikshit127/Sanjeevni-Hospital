@@ -274,21 +274,6 @@ function AppointmentsManagement() {
     }
   };
 
-  const updateStatus = async (appointmentId, status, paymentStatus) => {
-    try {
-      const config = createAxiosConfig();
-      await axios.put(
-        `${API_URL}/admin/appointments/${appointmentId}/status`,
-        { status, paymentStatus },
-        config
-      );
-      fetchAppointments();
-    } catch (error) {
-      console.error("Error updating appointment:", error);
-      alert("Failed to update appointment");
-    }
-  };
-
   // Filter helpers
   const isSameDate = (d1, d2) => {
     return (
@@ -541,47 +526,47 @@ function AppointmentsManagement() {
             <table className="w-full">
               <thead className="bg-primary text-white">
                 <tr>
-                  <th className="px-6 py-3 text-left">Token</th>
-                  <th className="px-6 py-3 text-left">Patient</th>
-                  <th className="px-6 py-3 text-left">Contact</th>
-                  <th className="px-6 py-3 text-left">Doctor</th>
-                  <th className="px-6 py-3 text-left">Date & Time</th>
-                  <th className="px-6 py-3 text-left">Fee</th>
-                  <th className="px-6 py-3 text-left">Status</th>
-                  <th className="px-6 py-3 text-left">Payment</th>
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm whitespace-nowrap">Token</th>
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm whitespace-nowrap">Patient</th>
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm whitespace-nowrap">Contact</th>
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm whitespace-nowrap">Doctor</th>
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm whitespace-nowrap">Date & Time</th>
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm whitespace-nowrap">Fee</th>
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm whitespace-nowrap">Status</th>
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm whitespace-nowrap">Payment</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {filteredAppointments.map((apt) => (
                   <tr key={apt._id} className="hover:bg-gray-50 transition">
-                    <td className="px-6 py-4">
-                      <span className="bg-accent text-white px-3 py-1 rounded-full font-bold text-xs">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4">
+                      <span className="bg-accent text-white px-2 sm:px-3 py-1 rounded-full font-bold text-xs">
                         #{apt.tokenNumber}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <p className="font-semibold text-gray-900">{apt.patientName}</p>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4">
+                      <p className="font-semibold text-gray-900 text-xs sm:text-sm">{apt.patientName}</p>
                     </td>
-                    <td className="px-6 py-4">
-                      <p className="text-sm text-gray-600">{apt.patientEmail}</p>
-                      <p className="text-sm text-gray-600">{apt.patientPhone}</p>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4">
+                      <p className="text-xs sm:text-sm text-gray-600">{apt.patientEmail}</p>
+                      <p className="text-xs sm:text-sm text-gray-600">{apt.patientPhone}</p>
                     </td>
-                    <td className="px-6 py-4">
-                      <p className="font-medium">{apt.doctorId?.name || "N/A"}</p>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4">
+                      <p className="font-medium text-xs sm:text-sm">{apt.doctorId?.name || "N/A"}</p>
                       {apt.doctorId?.specialty && (
                         <p className="text-xs text-gray-500">{apt.doctorId.specialty}</p>
                       )}
                     </td>
-                    <td className="px-6 py-4">
-                      <p className="font-medium">{new Date(apt.date).toLocaleDateString()}</p>
-                      <p className="text-sm text-accent font-semibold">{apt.timeSlot}</p>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4">
+                      <p className="font-medium text-xs sm:text-sm">{new Date(apt.date).toLocaleDateString()}</p>
+                      <p className="text-xs sm:text-sm text-accent font-semibold">{apt.timeSlot}</p>
                     </td>
-                    <td className="px-6 py-4 font-semibold text-green-600">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 font-semibold text-green-600 text-xs sm:text-sm">
                       ₹{apt.consultationFee}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4">
                       <span
-                        className={`px-3 py-1.5 rounded-full text-sm font-semibold ${apt.status === "booked"
+                        className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-semibold ${apt.status === "booked"
                           ? "bg-green-100 text-green-800"
                           : "bg-red-100 text-red-800"
                           }`}
@@ -589,8 +574,8 @@ function AppointmentsManagement() {
                         {apt.status === "booked" ? "Booked" : "Cancelled"}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4">
+                      <span className="px-2 sm:px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
                         Paid
                       </span>
                     </td>
@@ -925,12 +910,12 @@ function DoctorsManagement() {
       {/* Add/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <h3 className="text-2xl font-bold mb-6">
+          <div className="bg-white rounded-xl p-4 sm:p-6 lg:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">
               {editingDoctor ? "Edit Doctor" : "Add New Doctor"}
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <input
                   type="text"
                   placeholder="Doctor Name *"
@@ -1058,11 +1043,11 @@ function DoctorsManagement() {
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                 rows="3"
               ></textarea>
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <button
                   type="submit"
                   disabled={uploading}
-                  className={`flex-1 py-3 rounded-lg font-semibold transition ${uploading
+                  className={`flex-1 py-3 rounded-lg font-semibold transition text-sm sm:text-base ${uploading
                     ? 'bg-gray-400 cursor-not-allowed'
                     : 'bg-accent hover:bg-accent-600 text-white'
                     }`}
@@ -1075,7 +1060,7 @@ function DoctorsManagement() {
                     setShowModal(false);
                     resetForm();
                   }}
-                  className="flex-1 bg-gray-400 hover:bg-gray-500 text-white py-3 rounded-lg font-semibold transition"
+                  className="flex-1 bg-gray-400 hover:bg-gray-500 text-white py-3 rounded-lg font-semibold transition text-sm sm:text-base"
                 >
                   Cancel
                 </button>
@@ -1100,6 +1085,7 @@ function DoctorsManagement() {
 export default function AdminDashboard() {
   const location = useLocation();
   const currentPath = location.pathname;
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const navItems = [
     { path: "/admin", label: "Dashboard", icon: <FaHome /> },
@@ -1117,14 +1103,58 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gray-100 pt-20">
       <div className="flex">
+        {/* Mobile Menu Button */}
+        <button
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="lg:hidden fixed top-24 left-4 z-50 bg-primary-900 text-white p-3 rounded-lg shadow-lg hover:bg-primary-800 transition"
+          aria-label="Toggle sidebar"
+        >
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            {isSidebarOpen ? (
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            ) : (
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            )}
+          </svg>
+        </button>
+
+        {/* Overlay for mobile */}
+        {isSidebarOpen && (
+          <div
+            className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40 top-20"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+
         {/* Sidebar */}
-        <div className="w-64 bg-primary-900 text-white min-h-screen p-6 fixed left-0 top-20">
+        <div
+          className={`
+            w-64 bg-primary-900 text-white min-h-screen p-6 fixed left-0 top-20 z-40 transition-transform duration-300 ease-in-out
+            ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          `}
+        >
           <h2 className="text-2xl font-bold mb-8">Admin Panel</h2>
           <nav className="space-y-2">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
+                onClick={() => setIsSidebarOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition ${currentPath === item.path
                   ? "bg-accent text-white"
                   : "hover:bg-gray-700"
@@ -1138,7 +1168,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 p-8 ml-64">
+        <div className="flex-1 p-4 sm:p-6 lg:p-8 lg:ml-64 w-full">
           <Routes>
             <Route path="/" element={<DashboardHome />} />
             <Route path="/appointments" element={<AppointmentsManagement />} />

@@ -7,11 +7,34 @@ const { authMiddleware } = require("../middleware/auth");
 const Doctor = require("../models/Doctor");
 const Appointment = require("../models/Appointment");
 
+// 🧪 Test endpoint to verify payment routes are working
+router.get("/test", (req, res) => {
+    res.json({
+        success: true,
+        message: "Payment routes are working!",
+        razorpayConfigured: !!(razorpay && razorpay.orders),
+        envVars: {
+            hasKeyId: !!process.env.RAZORPAY_KEY_ID,
+            hasKeySecret: !!process.env.RAZORPAY_KEY_SECRET
+        }
+    });
+});
+
+
 // 🔹 Create Razorpay order
 // POST /api/payments/create-order
 router.post("/create-order", authMiddleware, async (req, res) => {
     try {
         console.log("📝 Creating Razorpay order...");
+
+        // Validate razorpay instance
+        if (!razorpay || !razorpay.orders) {
+            console.error("❌ Razorpay instance not properly initialized");
+            return res.status(500).json({
+                message: "Payment gateway not configured properly. Please contact support."
+            });
+        }
+
         const {
             doctorId,
             date,
@@ -41,12 +64,15 @@ router.post("/create-order", authMiddleware, async (req, res) => {
 
         const amount = doctor.consultationFee * 100; // amount in paise
 
+        // Convert doctorId to string if it's an ObjectId
+        const doctorIdStr = doctorId.toString();
+
         const options = {
             amount,
             currency: "INR",
-            receipt: `apt_${doctorId.slice(-8)}_${Date.now()}`,
+            receipt: `apt_${doctorIdStr.slice(-8)}_${Date.now()}`,
             notes: {
-                doctorId,
+                doctorId: doctorIdStr,
                 date,
                 timeSlot,
                 userId: req.user.id,
@@ -57,7 +83,7 @@ router.post("/create-order", authMiddleware, async (req, res) => {
             },
         };
 
-        console.log("Creating Razorpay order with options:", { amount, currency: "INR" });
+        console.log("Creating Razorpay order with options:", { amount, currency: "INR", receipt: options.receipt });
         const order = await razorpay.orders.create(options);
         console.log("✅ Razorpay order created:", order.id);
 
@@ -69,10 +95,14 @@ router.post("/create-order", authMiddleware, async (req, res) => {
             orderId: order.id,
         });
     } catch (error) {
-        console.error("❌ Error creating Razorpay order:", error);
+        console.error("❌ Error creating Razorpay order:");
+        console.error("Error message:", error.message);
+        console.error("Error stack:", error.stack);
+        console.error("Error details:", error);
         res.status(500).json({
             message: "Failed to create payment order",
-            error: error.message
+            error: error.message,
+            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
         });
     }
 });

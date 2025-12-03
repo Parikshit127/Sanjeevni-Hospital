@@ -281,14 +281,38 @@ router.get("/all-doctors", async (req, res) => {
 // @access  Private/Admin
 router.get("/analytics/operational", async (req, res) => {
   try {
-    console.log("📊 Fetching operational metrics...");
+    const { startDate, endDate } = req.query;
+    console.log(`📊 Fetching operational metrics... Start: ${startDate}, End: ${endDate}`);
 
-    // 1. Appointments Trend (Last 30 Days)
-    const last30Days = new Date();
-    last30Days.setDate(last30Days.getDate() - 30);
+    // Date range setup
+    let dateFilter = {};
+    let start, end;
 
+    if (startDate && endDate) {
+      start = new Date(startDate);
+      end = new Date(endDate);
+      end.setHours(23, 59, 59, 999); // Include the entire end date
+
+      if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+        dateFilter = { $gte: start, $lte: end };
+        console.log(`✅ Using custom date range: ${start.toISOString()} to ${end.toISOString()}`);
+      } else {
+        console.warn("⚠️ Invalid dates provided, using last 30 days");
+        const last30Days = new Date();
+        last30Days.setDate(last30Days.getDate() - 30);
+        dateFilter = { $gte: last30Days };
+      }
+    } else {
+      // Default to last 30 days
+      const last30Days = new Date();
+      last30Days.setDate(last30Days.getDate() - 30);
+      dateFilter = { $gte: last30Days };
+      console.log(`📅 No dates provided, using last 30 days: ${last30Days.toISOString()}`);
+    }
+
+    // 1. Appointments Trend (filtered by date range)
     const appointmentsTrend = await Appointment.aggregate([
-      { $match: { createdAt: { $gte: last30Days } } },
+      { $match: { date: dateFilter } },
       {
         $group: {
           _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
@@ -297,20 +321,22 @@ router.get("/analytics/operational", async (req, res) => {
       },
       { $sort: { _id: 1 } },
     ]);
+    console.log(`✅ Appointments trend: ${appointmentsTrend.length} data points`);
 
-    // 2. No-Show Rate
-    const totalCompletedOrNoShow = await Appointment.countDocuments({
-      status: { $in: ["completed", "cancelled"] }, // Assuming cancelled might include no-shows or we need a specific status
-      // If we don't have explicit 'no-show', we might use cancelled as a proxy or just return 0 for now
+    // 2. No-Show Rate (filtered by date range)
+    const totalAppsInRange = await Appointment.countDocuments({
+      date: dateFilter
     });
-    // For now, let's calculate cancellation rate as a proxy for no-show if we don't have 'no-show' status
-    const totalCancelled = await Appointment.countDocuments({ status: "cancelled" });
-    const totalApps = await Appointment.countDocuments();
-    const noShowRate = totalApps > 0 ? ((totalCancelled / totalApps) * 100).toFixed(1) : 0;
+    const totalCancelled = await Appointment.countDocuments({
+      date: dateFilter,
+      status: "cancelled"
+    });
+    const noShowRate = totalAppsInRange > 0 ? ((totalCancelled / totalAppsInRange) * 100).toFixed(1) : 0;
+    console.log(`✅ No-show rate: ${noShowRate}% (${totalCancelled}/${totalAppsInRange})`);
 
-    // 3. Doctor Performance (Patients Seen)
+    // 3. Doctor Performance (Patients Seen) - filtered by date range
     const doctorPerformance = await Appointment.aggregate([
-      { $match: { status: "completed" } },
+      { $match: { date: dateFilter, status: { $in: ["completed", "booked"] } } },
       {
         $group: {
           _id: "$doctorId",
@@ -335,9 +361,11 @@ router.get("/analytics/operational", async (req, res) => {
       { $sort: { patientsSeen: -1 } },
       { $limit: 5 },
     ]);
+    console.log(`✅ Doctor performance: ${doctorPerformance.length} doctors`);
 
-    // 4. Department Load
+    // 4. Department Load (filtered by date range)
     const departmentLoad = await Appointment.aggregate([
+      { $match: { date: dateFilter } },
       {
         $lookup: {
           from: "doctors",
@@ -355,6 +383,7 @@ router.get("/analytics/operational", async (req, res) => {
       },
       { $sort: { count: -1 } }
     ]);
+    console.log(`✅ Department load: ${departmentLoad.length} departments`);
 
     res.json({
       success: true,
